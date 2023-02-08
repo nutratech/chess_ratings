@@ -1,0 +1,13 @@
+[MASTER]
+
+fail-under=10
+
+
+[MESSAGES CONTROL]
+
+disable=
+    fixme,
+
+    # Temporary
+    too-many-instance-attributes,
+    too-many-locals,
