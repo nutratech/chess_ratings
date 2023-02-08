@@ -1,0 +1,52 @@
+---
+name: test
+
+"on":
+  push: {}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHON_SPOOF_VENV: /home/runner/work/chess_ratings/chess_ratings/.venv/bin/python
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Reload Cache / pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install requirements
+        run: PYTHON=${{ env.PYTHON_SPOOF_VENV }} make deps
+
+      - name: Lint
+        run: PYTHON=${{ env.PYTHON_SPOOF_VENV }} make lint
+
+      - name: Test
+        run: PYTHON=${{ env.PYTHON_SPOOF_VENV }} make test
+
+      - name: Compare coverage with allowed minimum
+        run: |
+          export PYTHON=${{ env.PYTHON_SPOOF_VENV }}
+          COV_ACTUAL=$(make test | grep ^TOTAL | awk -F' ' '{print $4}' | awk -F'%' '{print $1}' | xargs)
+          COV_EXPECT=$(grep fail_under setup.cfg | awk -F'=' '{print $2}' | xargs)
+          if [[ "$COV_ACTUAL" != "$COV_EXPECT" ]]; then
+            echo "FATAL: coverage in setup.cfg must be exactly '$COV_ACTUAL'"
+            exit 1
+          fi
+
+      - name: Basic CLI Integration Tests
+        run: |
+          echo TODO: this

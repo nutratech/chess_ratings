@@ -1,0 +1,227 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun 08 Jan 2023 11∶26∶34 PM EST
+
+@author: shane
+Game model used for players, location, date, outcome, etc.
+Player model used for singles & doubles ratings, username, wins/losses, etc.
+Club model used for grouping games and players to location names.
+"""
+from datetime import date
+from typing import Dict, List, Set, Union
+
+import asciichartpy  # pylint: disable=import-error
+
+from chessdet import (
+    DICT_OUTCOME_TO_SCORE,
+    ENUM_OUTCOMES,
+    ENUM_VARIANTS,
+    STANDARD,
+    timecontrol,
+)
+from chessdet.glicko2 import glicko2
+
+CLUB_DICT = {
+    # "": "",
+    "Royal Oak (Methodist Church)": "Royal Oak",
+    "Oakland County (Methodist Church, Waterford)": "Oak County",
+    "Oak Park (Community Center)": "Oak Park",
+    "Port Huron (Palmer Park Rec Center)": "Port Huron",
+}
+
+# pylint: disable=too-few-public-methods
+
+
+class Club:
+    """
+    Model for storing the club name
+    """
+
+    def __init__(self, name: str) -> None:
+        self.name = CLUB_DICT[name]
+
+        # Other values populated bi-directionally
+        self.games = []  # type: ignore
+        self.players = []  # type: ignore
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __eq__(self, other) -> bool:  # type: ignore
+        return bool(self.name == other.name)
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+
+class Game:
+    """
+    Model for storing date, location, wins/losses, opponent, etc.
+    TODO:
+        - Easily queryable,
+            e.g. find max(best_win_opponent_ratings) or avg(opponent_ratings)
+        - Decide on life cycle flow of overall app: interface, modularity, & persistence
+    """
+
+    def __init__(self, row: Dict[str, str]) -> None:
+        self.date = date.fromisoformat(row["date"])
+
+        self.username_white = row["white"]
+        self.username_black = row["black"]
+
+        self.result = row["result"]
+        self.score = DICT_OUTCOME_TO_SCORE[self.result]
+        self.outcome = row["outcome"]
+
+        self.location = Club(row["location"])
+
+        # Optional fields
+        self.variant = row["variant"] or STANDARD
+        self.time_control = row["time"]
+        self.num_moves = int(row["# of moves"] or -1)
+        self.opening = row["opening"]
+        self.notes = row["notes"]
+
+        # Validation
+        self.validate_fields()
+
+        # Compute time control
+        if self.time_control:
+            self.base_time = int(self.time_control.split("|")[0])
+            self.increment = int(self.time_control.split("|")[0])
+            # Assign category
+            self.category = timecontrol.game_type(self.base_time, self.increment)
+
+    def __str__(self) -> str:
+        return (
+            f"{self.date} "
+            f"{self.username_white} vs. {self.username_black} "
+            f"{self.score}"
+        )
+
+    def validation_error(self, err_msg: str) -> None:
+        """Raises a value error with err_msg and printing out the Game().__str__"""
+        raise ValueError(f"{err_msg}\nGame: {self}")
+
+    def validate_username(self, username: str) -> None:
+        """Verify a username is at least 3 characters long"""
+        min_length = 3
+        if len(username) < min_length:
+            self.validation_error(
+                f"Username must be at least {min_length} characters, got: {username}\n"
+            )
+
+    def validate_fields(self) -> None:
+        """Validates fields to make sure CSV row is properly formatted"""
+        self.validate_username(self.username_white)
+        self.validate_username(self.username_black)
+
+        # Game outcomes
+        if self.outcome not in ENUM_OUTCOMES:
+            self.validation_error(
+                f"Invalid outcome: '{self.outcome}', must be in '{ENUM_OUTCOMES}'"
+            )
+
+        # Variant
+        if self.variant not in ENUM_VARIANTS:
+            self.validation_error(
+                f"Invalid result: '{self.result}', must be in '{ENUM_VARIANTS}'"
+            )
+
+
+class Player:
+    """
+    Model for storing username, rating
+
+    TODO:
+        - Include points in scoreboard? Track avg(points) of player1 vs. player2?
+        - self.first_game (or self.join_date?)
+    """
+
+    def __init__(self, username: str) -> None:
+        self.username = username
+
+        # NOTE: length of this is one longer than other arrays
+        self.ratings = [glicko2.Rating()]
+
+        self.opponent_ratings: Dict[str, List[float]] = {
+            "wins": [],
+            "losses": [],
+        }
+
+        # NOTE: separate scripts doubles & singles, it would aggregate both (is okay?)
+        # Used to decide home club
+        self.club_appearances: Dict[str, int] = {}
+
+    def __str__(self) -> str:
+        # NOTE: return this as a tuple, and tabulate it (rather than format as string)?
+        return f"{self.username} [{self.str_rating()}]"
+
+    @property
+    def rating(self) -> glicko2.Rating:
+        """Gets the rating"""
+        glicko = glicko2.Glicko2()
+        _rating = self.ratings[-1]
+
+        return glicko.create_rating(mu=_rating.mu, phi=_rating.phi, sigma=_rating.sigma)
+
+    def home_club(self) -> str:
+        """Gets the most frequent place of playing"""
+        return max(
+            self.club_appearances,
+            key=self.club_appearances.get,  # type: ignore
+        )
+
+    def clubs(self) -> List[str]:
+        """
+        Gets all the clubs someone has appeared at
+        TODO: sort alphabetically or by frequency of appearance (most frequented club)
+        """
+        _clubs: Set[str] = set()
+        _clubs.update(self.club_appearances)
+        return sorted(list(_clubs))
+
+    def str_rating(self) -> str:
+        """Returns a friendly string for a rating, e.g. 1500 ± 300"""
+        _rating = round(self.rating.mu)
+        _uncertainty = round(self.rating.phi * 1.96, -1)  # Round to 10s
+
+        return f"{_rating} ± {int(_uncertainty)}"
+
+    def str_win_losses(self) -> str:
+        """Returns e.g. 5-2"""
+
+        n_wins = len(self.opponent_ratings["wins"])
+        n_losses = len(self.opponent_ratings["losses"])
+
+        return f"{n_wins}-{n_losses}"
+
+    def avg_opponent(self) -> Union[int, float]:
+        """Returns average opponent"""
+
+        _avg_opponent = (
+            sum(self.opponent_ratings["wins"]) + sum(self.opponent_ratings["losses"])
+        ) / (len(self.opponent_ratings["wins"]) + len(self.opponent_ratings["losses"]))
+
+        return round(_avg_opponent)
+
+    def best_win(self) -> Union[None, int]:
+        """Returns best win"""
+        try:
+            _best_win = max(self.opponent_ratings["wins"])
+        except ValueError:
+            return None
+
+        return round(_best_win)
+
+    def graph_ratings(
+        self, graph_width_limit: int = 50, graph_height: int = 12
+    ) -> List[int]:
+        """
+        Prints an ASCII graph of rating over past 50 games
+        """
+
+        _series = [round(x.mu) for x in self.ratings[-graph_width_limit:]]
+        _plot = asciichartpy.plot(_series, {"height": graph_height})
+        print(_plot)
+        return _series
