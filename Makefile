@@ -35,7 +35,7 @@ deps: _venv	## Install requirements & sub-module
 # Lint, test, format, clean
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ALL_LINT_LOCS=chessdet/ tests/
+ALL_LINT_LOCS=cr chessdet/ tests/
 
 format: _venv	## Format the code
 	isort $(ALL_LINT_LOCS)
