@@ -67,6 +67,12 @@ def test_Game_validate_fields() -> None:
             "notes": "",
         }
 
+    # Result (not for coverage, just code sanity)
+    with pytest.raises(KeyError):
+        row = _default_row_builder()
+        row["result"] = "INVALID_RESULT"
+        Game(row)
+
     # Outcome
     with pytest.raises(ValueError):
         row = _default_row_builder()

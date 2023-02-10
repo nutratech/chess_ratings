@@ -19,7 +19,6 @@ __license__ = "GPL v3"
 __copyright__ = "Copyright 2022-2023 Shane J"
 __url__ = "https://github.com/nutratech/chess_ratings"
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Other constants
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -30,6 +29,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 # Console size, don't print more than it
 BUFFER_WD = shutil.get_terminal_size()[0]
 BUFFER_HT = shutil.get_terminal_size()[1]
+
 
 # Google Sheet constants
 
@@ -61,6 +61,10 @@ DICT_OUTCOME_TO_SCORE = {
 
 # Enum
 STANDARD = "Standard"
+
+WHITE = "White"
+BLACK = "Black"
+DRAW = "Draw"
 
 ENUM_OUTCOMES = {
     # Win / Loss
