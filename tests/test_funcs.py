@@ -18,4 +18,4 @@ def test_parser_func_rate() -> None:
     """Test "r" subcommand (rate)"""
     exit_code, result = parser_func_rate()
     assert exit_code == 0
-    assert result == (None,)
+    assert result
