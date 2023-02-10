@@ -42,3 +42,9 @@ def test_with_debug() -> None:
     """Test with DEBUG=True"""
     exit_code = main(args=["-d"])
     assert exit_code == 0
+
+
+def test_d() -> None:
+    """Test "d" subcommand (download)"""
+    exit_code = main(args=["-d", "d"])
+    assert exit_code == 0

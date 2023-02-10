@@ -13,10 +13,11 @@ import requests
 from chessdet import CSV_GAMES_FILE_PATH, CSV_GAMES_URL
 
 
-def get_google_sheet(url: str) -> bytes:
+def get_google_sheet(url: str = CSV_GAMES_URL) -> bytes:
     """
     Returns a byte array (string) of the Google Sheet in CSV format
     """
+    print(f"GET {url}")
 
     response = requests.get(url, timeout=2)
     response.raise_for_status()
@@ -25,14 +26,16 @@ def get_google_sheet(url: str) -> bytes:
 
 
 def cache_csv_games_file(
-    _csv_bytes_output: bytes,
-    _file_path: str = CSV_GAMES_FILE_PATH,
+    # _csv_bytes_output: bytes,
+    args,
+    # _file_path: str = CSV_GAMES_FILE_PATH,
 ) -> None:
     """
     Persists the CSV file into the git commit history.
     Fall back calculation in case sheets.google.com is unreachable.
     (Manually) verify no nefarious edits are made.
     """
+    print(f"save to: {_file_path}")
     with open(_file_path, "wb") as _file:
         _file.write(_csv_bytes_output)
 
