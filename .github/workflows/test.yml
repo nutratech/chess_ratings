@@ -47,6 +47,9 @@ jobs:
             exit 1
           fi
 
+      - name: Verify all python files are annotated at top
+        run: make verify/py-annotated
+
       - name: Basic CLI Integration Tests
         run: |
           echo TODO: this

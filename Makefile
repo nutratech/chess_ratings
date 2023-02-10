@@ -60,3 +60,13 @@ ALL_CLEAN_ARGS=-name .coverage -o -name __pycache__ -o -name .pytest_cache -o -n
 clean:	## Clean up pycache/ and other left overs
 	rm -rf $(shell find . -maxdepth 1 $(ALL_CLEAN_ARGS))
 	rm -rf $(shell find $(ALL_LINT_LOCS) $(ALL_CLEAN_ARGS))
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Verify targets
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N_ANNOTATED_FILES_ACTUAL ?= $(shell grep @author $(shell find chessdet/ -name *.py) | wc -l)
+N_ANNOTATED_FILES_EXPECT ?= $(shell find chessdet/ -name *.py | grep -v glicko2 | wc -l)
+verify/py-annotated:	## Verify all pythong files have the annotation at top
+	[[ "$(N_ANNOTATED_FILES_ACTUAL)" == "$(N_ANNOTATED_FILES_EXPECT)" ]]
