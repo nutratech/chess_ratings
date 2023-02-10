@@ -26,9 +26,8 @@ def get_google_sheet(url: str = CSV_GAMES_URL) -> bytes:
 
 
 def cache_csv_games_file(
-    # _csv_bytes_output: bytes,
-    args,
-    # _file_path: str = CSV_GAMES_FILE_PATH,
+    _csv_bytes_output: bytes,
+    _file_path: str = CSV_GAMES_FILE_PATH,
 ) -> None:
     """
     Persists the CSV file into the git commit history.
