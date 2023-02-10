@@ -4,12 +4,14 @@ Created on Fri Feb 10 13:26:28 2023
 
 @author: shane
 """
+import argparse
 import math
 from typing import Dict, List, Set, Tuple
 
 from tabulate import tabulate
 
 from chessdet.core import process_csv
+from chessdet.drawprobs import P_draw
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import cache_csv_games_file, get_google_sheet
@@ -24,13 +26,19 @@ def parser_func_download() -> Tuple[int, None]:
     return 0, None
 
 
-def parser_func_rate() -> Tuple[int, Tuple[List[Game], Dict[str, Player], Set[Club]]]:
+def parser_func_rate(
+    args: argparse.Namespace,
+) -> Tuple[int, Tuple[List[Game], Dict[str, Player], Set[Club]]]:
     """Default function for rate parser"""
+    # FIXME: make this into an annotation function? Easily, neatly re-usable & testable.
+    if not args.skip_dl:
+        cache_csv_games_file(
+            _csv_bytes_output=get_google_sheet(),
+        )
+
     games, players, clubs = process_csv()
 
     # Print the rankings table
-    # pylint: disable=invalid-name
-    p: Player  # noqa: F842
     table_series_players = [
         (
             p.username,
@@ -62,9 +70,13 @@ def parser_func_rate() -> Tuple[int, Tuple[List[Game], Dict[str, Player], Set[Cl
     )
     print(_table)
 
+    # Optionally print match ups
+    if args.matches:
+        parser_func_match_ups(argparse.Namespace(skip_dl=True))
+
     # Print the rating progress charts
     print_title("Rating progress charts")
-    for p in players.values():
+    for p in players.values():  # pylint: disable=invalid-name
         print()
         print(p)
         p.graph_ratings()
@@ -72,8 +84,12 @@ def parser_func_rate() -> Tuple[int, Tuple[List[Game], Dict[str, Player], Set[Cl
     return 0, (games, players, clubs)
 
 
-def parser_func_match_ups() -> Tuple[int, tuple]:
+def parser_func_match_ups(args: argparse.Namespace) -> Tuple[int, tuple]:
     """Default function for rate parser"""
+    if not args.skip_dl:
+        cache_csv_games_file(
+            _csv_bytes_output=get_google_sheet(),
+        )
 
     def match_up(player1: Player, player2: Player) -> tuple:
         """Yields an individual match up for the table data"""
@@ -86,32 +102,28 @@ def parser_func_match_ups() -> Tuple[int, tuple]:
                 -1,
             )
         )
-        win_probability = round(
-            glicko.expect_score(
-                glicko.scale_down(player1.rating),
+        # pylint: disable=invalid-name
+        E1 = glicko.expect_score(
+            glicko.scale_down(player1.rating),
+            glicko.scale_down(player2.rating),
+            glicko.reduce_impact(
                 glicko.scale_down(player2.rating),
-                glicko.reduce_impact(
-                    glicko.scale_down(player2.rating),
-                ),
             ),
-            2,
         )
-        loss_probability = round(
-            glicko.expect_score(
-                glicko.scale_down(player2.rating),
+        E2 = glicko.expect_score(
+            glicko.scale_down(player2.rating),
+            glicko.scale_down(player1.rating),
+            glicko.reduce_impact(
                 glicko.scale_down(player1.rating),
-                glicko.reduce_impact(
-                    glicko.scale_down(player1.rating),
-                ),
             ),
-            2,
+        )
+        win_probability = round((E1 + (1 - E2)) / 2, 2)
+        gamma = glicko.quality_1vs1(
+            glicko.scale_down(player1.rating),
+            glicko.scale_down(player2.rating),
         )
         draw_probability = round(
-            glicko.quality_1vs1(
-                glicko.scale_down(player1.rating),
-                glicko.scale_down(player2.rating),
-            ),
-            2,
+            gamma * P_draw(player1.rating.mu, player2.rating.mu), 2
         )
         return (
             player1.username,
@@ -119,7 +131,6 @@ def parser_func_match_ups() -> Tuple[int, tuple]:
             delta_rating,
             rd_avg,
             win_probability,
-            loss_probability,
             draw_probability,
         )
 
@@ -137,7 +148,7 @@ def parser_func_match_ups() -> Tuple[int, tuple]:
     print_title("Match ups")
     _table = tabulate(
         match_ups,
-        headers=["Player 1", "Player 2", "Δμ", "RD", "P(w)", "P(l)", "P(d)"],
+        headers=["Player 1", "Player 2", "Δμ", "RD", "P(w)+P(d)/2", "P(d)"],
     )
     print(_table)
 

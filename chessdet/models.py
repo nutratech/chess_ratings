@@ -62,6 +62,7 @@ class Game:
             e.g. find max(best_win_opponent_ratings) or avg(opponent_ratings)
         - Decide on life cycle flow of overall app: interface, modularity, & persistence
         - FIXME: Filter based on other VARIANTS. We foolishly aggregate all types today
+        - FIXME: use timecontrol.py: calculate different ratings: blitz/rapid/classical
     """
 
     def __init__(self, row: Dict[str, str]) -> None:
@@ -81,6 +82,7 @@ class Game:
         self.time_control = row["time"]
         self.num_moves = int(row["# of moves"] or -1)
         self.opening = row["opening"]
+        self.url_analysis = row["analysis"]
         self.notes = row["notes"]
 
         # Validation
@@ -162,7 +164,7 @@ class Player:
     @property
     def rating(self) -> glicko2.Rating:
         """Gets the rating"""
-        # FIXME: a lot of these would need to support variant != "STANDARD"
+        # FIXME: a lot of these properties would need to support variant != "STANDARD"
         glicko = glicko2.Glicko2()
         _rating = self.ratings[-1]
 

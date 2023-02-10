@@ -34,16 +34,22 @@ Set up ``venv``. Install ``pip`` dependencies and ``glicko2`` submodule.
 Running
 #######
 
-**TODO**
+You can rate and download with this.
+
+``./cr r``
+
+To skip downloading (assume cached) AND print match ups do this.
+
+``./cr -s r -m``
 
 
 Match ups for given players
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TODO**
+``./cr m``
 
 
 Filtering Players
 ~~~~~~~~~~~~~~~~~
 
-**TODO**
+**TODO:** Filter by people who showed up, or aggregate by club?

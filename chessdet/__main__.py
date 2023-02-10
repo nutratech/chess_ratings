@@ -36,6 +36,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     arg_parser.add_argument(
         "--no-pager", action="store_true", help="disable paging (print full output)"
     )
+    arg_parser.add_argument(
+        "-s", "--skip-dl", action="store_true", help="skip sheet download, use cached"
+    )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Subparsers
@@ -53,6 +56,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     # Rate parser
     subparser_rate = subparsers.add_parser(
         "r", help="Process CSV, output ratings or player detail"
+    )
+    subparser_rate.add_argument(
+        "-m", "--matches", action="store_true", help="Also print out fairest match ups"
     )
     subparser_rate.set_defaults(func=parser_func_rate)
 
