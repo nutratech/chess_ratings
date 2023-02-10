@@ -147,6 +147,7 @@ class Player:
         self.opponent_ratings: Dict[str, List[float]] = {
             "wins": [],
             "losses": [],
+            "draws": [],
         }
 
         # NOTE: separate scripts doubles & singles, it would aggregate both (is okay?)
@@ -164,6 +165,14 @@ class Player:
         _rating = self.ratings[-1]
 
         return glicko.create_rating(mu=_rating.mu, phi=_rating.phi, sigma=_rating.sigma)
+
+    def add_club(self, club: str) -> None:
+        """Adds a club tally to the club appearances dictionary"""
+
+        if club in self.club_appearances:
+            self.club_appearances[club] += 1
+        else:
+            self.club_appearances[club] = 1
 
     def home_club(self) -> str:
         """Gets the most frequent place of playing"""
@@ -188,27 +197,34 @@ class Player:
 
         return f"{_rating} ± {int(_uncertainty)}"
 
-    def str_win_losses(self) -> str:
+    def str_wins_draws_losses(self) -> str:
         """Returns e.g. 5-2"""
 
         n_wins = len(self.opponent_ratings["wins"])
+        n_draws = len(self.opponent_ratings["draws"])
         n_losses = len(self.opponent_ratings["losses"])
 
-        return f"{n_wins}-{n_losses}"
+        return f"+{n_wins} ={n_draws} -{n_losses}"
 
     def avg_opponent(self) -> Union[int, float]:
         """Returns average opponent"""
 
-        _avg_opponent = (
-            sum(self.opponent_ratings["wins"]) + sum(self.opponent_ratings["losses"])
-        ) / (len(self.opponent_ratings["wins"]) + len(self.opponent_ratings["losses"]))
+        _avg_opponent = sum(
+            sum(self.opponent_ratings[_result])
+            for _result in ["wins", "losses", "draws"]
+        ) / (
+            sum(
+                len(self.opponent_ratings[_result])
+                for _result in ["wins", "losses", "draws"]
+            )
+        )
 
         return round(_avg_opponent)
 
-    def best_win(self) -> Union[None, int]:
+    def best_win(self, mode: str = "wins") -> Union[None, int]:
         """Returns best win"""
         try:
-            _best_win = max(self.opponent_ratings["wins"])
+            _best_win = max(self.opponent_ratings[mode])
         except ValueError:
             return None
 

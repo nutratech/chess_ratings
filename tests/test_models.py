@@ -105,13 +105,16 @@ def test_Player() -> None:
     assert [club_name_abbrev] == player.clubs()
     assert club_name_abbrev == player.home_club()
 
-    # W/L
-    assert "0-0" == player.str_win_losses()
+    # Record W/D/L
+    assert "+0 =0 -0" == player.str_wins_draws_losses()
 
     # avg_opponent(), best_win()
-    player.opponent_ratings = {"wins": [], "losses": [1500]}
+    player.opponent_ratings["losses"] = [1500]
     assert 1500 == player.avg_opponent()
     assert None is player.best_win()
+
+    player.opponent_ratings["draws"] = [1500]
+    assert 1500 == player.best_win(mode="draws")
 
     player.opponent_ratings["wins"] = [1500]
     assert 1500 == player.best_win()
