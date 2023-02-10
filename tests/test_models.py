@@ -63,8 +63,9 @@ def test_Game_validate_fields() -> None:
             "time": "15|10",
             "# of moves": "37",
             "opening": "B37",
-            "variant": "",
-            "notes": "",
+            "variant": str(),
+            "analysis": str(),
+            "notes": str(),
         }
 
     # Result (not for coverage, just code sanity)
