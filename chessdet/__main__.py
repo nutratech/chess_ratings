@@ -12,9 +12,7 @@ from urllib.error import HTTPError, URLError
 import argcomplete
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
-from chessdet.sheetutils import cache_csv_games_file, get_google_sheet
-
-# from chessdet.argparser import build_subcommands
+from chessdet.argparser.funcs import parser_func_download, parser_func_rate
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -46,14 +44,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     download_parser = subparsers.add_parser(
         "d", help="Download the latest Sheet from Google"
     )
-    download_parser.set_defaults(
-        func=cache_csv_games_file, _csv_bytes_output=get_google_sheet()
-    )
+    download_parser.set_defaults(func=parser_func_download)
 
     # Rate parser
     rate_parser = subparsers.add_parser(
         "r", help="Process CSV, output ratings or player detail"
     )
+    rate_parser.set_defaults(func=parser_func_rate)
 
     # Match ups parser
 
