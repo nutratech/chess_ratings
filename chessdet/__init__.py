@@ -11,7 +11,7 @@ import shutil
 from chessdet.env import CHESS_DET_GOOGLE_SHEET_GAMES_GID, CHESS_DET_GOOGLE_SHEET_KEY
 
 # Package info
-__title__ = "chess_det"
+__title__ = "cr"
 __version__ = "0.0.0.dev0"
 __author__ = "Shane J"
 __email__ = "chown_tee@proton.me"
@@ -95,7 +95,7 @@ ENUM_VARIANTS = {
 
 
 # pylint: disable=too-few-public-methods,too-many-instance-attributes
-class _CliConfig:
+class CliConfig:
     """Mutable global store for configuration values"""
 
     def __init__(self, debug: bool = False, paging: bool = True) -> None:
@@ -118,4 +118,4 @@ class _CliConfig:
 
 
 # Create the shared instance object
-CLI_CONFIG = _CliConfig()
+CLI_CONFIG = CliConfig()
