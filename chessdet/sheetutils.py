@@ -46,6 +46,8 @@ def build_csv_reader(
     t_start = time.time()
 
     try:
+        # TODO: do we want this first try network, then fall back scheme?
+        #   Or do we want to have granular control: manually download, then run on cache
         _csv_bytes_output = get_google_sheet(csv_games_url)
         _csv_file = StringIO(_csv_bytes_output.decode())
         cache_csv_games_file(_csv_bytes_output, csv_file_path)

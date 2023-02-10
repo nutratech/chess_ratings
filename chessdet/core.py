@@ -1,70 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Feb  8 15:22:46 2023
+Created on Fri Feb 10 13:37:46 2023
 
 @author: shane
 """
-import os
-from typing import Dict
+import csv
+from typing import Dict, List, Tuple
 
-from chessdet.models import Player
-
-
-def get_or_create_player_by_name(players: Dict[str, Player], username: str) -> Player:
-    """Adds a player"""
-    if username in players:
-        return players[username]
-
-    _player = Player(username)
-    players[username] = _player
-    return _player
+from chessdet import CSV_GAMES_FILE_PATH
+from chessdet.models import Club, Game, Player
 
 
-def print_title(title: str) -> None:
-    """Prints a neat and visible header to separate tables"""
-    print(os.linesep)
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print(title)
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print()
+def load_csv(
+    csv_path: str = CSV_GAMES_FILE_PATH,
+) -> Tuple[List[Game], Dict[str, Player], List[Club]]:
+    """Load the CSV file into entity objects"""
 
+    # Prep the lists
+    games: List[Game] = []
+    players: Dict[str, Player] = {}
+    clubs: List[Club] = []
 
-def print_subtitle(subtitle: str) -> None:
-    """Print a subtitle"""
-    print()
-    print(subtitle)
-    print("~" * len(subtitle))
-    print()
+    # Read CSV
+    # TODO: do we want this duplicated in several places, or as a function?
+    # pylint: disable=consider-using-with
+    reader = csv.DictReader(open(csv_path, "r", encoding="utf-8"))
+    reader.fieldnames = [field.strip().lower() for field in reader.fieldnames or []]
 
+    for row in reader:
+        games.append(Game(row))
 
-def add_club(_player: Player, club: str) -> None:
-    """Adds a club tally to the club appearances dictionary"""
-    _appearances = _player.club_appearances
-
-    if club in _appearances:
-        _appearances[club] += 1
-    else:
-        _appearances[club] = 1
-
-
-# def cache_ratings_csv_file(sorted_players: List[Player]) -> None:
-#     """Saves the ratings in a CSV file, so we can manually calculate match ups"""
-#     headers = ["username", "mu", "phi", "sigma", "history", "clubs"]
-#     rows = [
-#         (
-#             p.username,
-#             p.rating_singles.mu,
-#             p.rating_singles.phi,
-#             p.rating_singles.sigma,
-#             " ".join(str(round(x.mu)) for x in p.rating),
-#             "|".join(p.clubs()),
-#         )
-#         for p in sorted_players
-#     ]
-#
-#     # Write the rows
-#     with open(CSV_RATINGS_FILE_PATH, "w", encoding="utf-8") as _f:
-#         csv_writer = csv.writer(_f)
-#
-#         csv_writer.writerow(headers)
-#         csv_writer.writerows(rows)
+    return games, players, clubs
