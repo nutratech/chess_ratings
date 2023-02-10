@@ -18,9 +18,25 @@ def update_players_ratings(players: Dict[str, Player], game: Game) -> None:
 
     def do_game(player1: Player, player2: Player, drawn: bool = False) -> None:
         """NOTE: player1 is winner by default, unless drawn (then it doesn't matter)"""
+
+        # Add opponent ratings
+        if drawn:
+            player1.opponent_ratings["draws"].append(player2.rating.mu)
+            player2.opponent_ratings["draws"].append(player1.rating.mu)
+        else:
+            player1.opponent_ratings["wins"].append(player2.rating.mu)
+            player2.opponent_ratings["losses"].append(player1.rating.mu)
+
+        # Add clubs
+        player1.add_club(game.location.name)
+        player2.add_club(game.location.name)
+
+        # Update ratings
         _new_rating_player1, _new_rating_player2 = glicko.rate_1vs1(
             player1.rating, player2.rating, drawn=drawn
         )
+        player1.ratings.append(_new_rating_player1)
+        player2.ratings.append(_new_rating_player2)
 
     # Create the rating engine
     glicko = glicko2.Glicko2()
@@ -59,5 +75,11 @@ def process_csv(
 
         # Update players stats and ratings
         update_players_ratings(players, game)
+
+    # Sort players by ratings
+    sorted_players = sorted(
+        players.values(), key=lambda x: float(x.rating.mu), reverse=True
+    )
+    players = {p.username: p for p in sorted_players}
 
     return games, players, clubs

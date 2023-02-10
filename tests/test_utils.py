@@ -5,12 +5,7 @@ Created on Wed Feb  8 20:11:45 2023
 @author: shane
 """
 from chessdet.models import Player
-from chessdet.utils import (
-    add_club,
-    get_or_create_player_by_name,
-    print_subtitle,
-    print_title,
-)
+from chessdet.utils import get_or_create_player_by_name, print_subtitle, print_title
 
 
 def test_print_title() -> None:
@@ -38,18 +33,3 @@ def test_get_or_create_player_by_name() -> None:
     result2 = get_or_create_player_by_name(players, new_id)
     assert new_id in players
     assert result2 == players[new_id]
-
-
-def test_add_club() -> None:
-    """Test the ability to track club appearances"""
-    player = Player("Guy")
-    club = "Home"
-
-    # Initialize new club
-    add_club(player, club)
-    assert club in player.club_appearances
-    assert 1 == player.club_appearances[club]
-
-    # Add tally to existing club
-    add_club(player, club)
-    assert 2 == player.club_appearances[club]
