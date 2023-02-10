@@ -12,7 +12,7 @@ from urllib.error import HTTPError, URLError
 import argcomplete
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
-from chessdet.argparser import build_subcommands
+# from chessdet.argparser import build_subcommands
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -34,8 +34,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
 
     # Subparsers
-    subparsers = arg_parser.add_subparsers(title=f"{__title__} subcommands")
-    build_subcommands(subparsers)
+    # subparsers = arg_parser.add_subparsers(title=f"{__title__} subcommands")
+    # build_subcommands(subparsers)
 
     return arg_parser
 
