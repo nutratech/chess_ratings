@@ -12,6 +12,7 @@ from urllib.error import HTTPError, URLError
 import argcomplete
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
+
 # from chessdet.argparser import build_subcommands
 
 
@@ -23,7 +24,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "-v",
         "--version",
         action="version",
-        version=f"{__title__} cli version {__version__}",
+        version=f"{__title__} version {__version__}",
     )
 
     arg_parser.add_argument(
@@ -105,7 +106,7 @@ def main(args: Union[None, List[str]] = None) -> int:
     finally:
         if CLI_CONFIG.debug:
             exc_time = time.time() - start_time
-            print(f"\nExecuted in: %s ms {round(exc_time * 1000, 1)}")
+            print(f"\nExecuted in: {round(exc_time * 1000, 1)} ms")
             print(f"Exit code: {exit_code}")
 
     return exit_code
