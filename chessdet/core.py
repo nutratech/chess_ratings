@@ -4,13 +4,18 @@ Created on Fri Feb 10 13:37:46 2023
 
 @author: shane
 """
+import argparse
+import math
 from typing import Dict, List, Set, Tuple
 
+from tabulate import tabulate
+
 from chessdet import BLACK, CSV_GAMES_FILE_PATH, WHITE
+from chessdet.drawprobs import P_draw
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
-from chessdet.sheetutils import build_csv_reader
-from chessdet.utils import get_or_create_player_by_name
+from chessdet.sheetutils import build_csv_reader, cache_csv_games_file, get_google_sheet
+from chessdet.utils import get_or_create_player_by_name, print_title
 
 
 def update_players_ratings(players: Dict[str, Player], game: Game) -> None:
@@ -83,3 +88,124 @@ def process_csv(
     players = {p.username: p for p in sorted_players}
 
     return games, players, clubs
+
+
+def func_rate(
+    args: argparse.Namespace,
+    games: List[Game],
+    players: Dict[str, Player],
+    clubs: List[Club],
+) -> None:
+    """Rate function used by rate sub-parser"""
+
+    # Print the rankings table
+    table_series_players = [
+        (
+            p.username,
+            p.str_rating(),
+            p.str_wins_draws_losses(),
+            round(max(x.mu for x in p.ratings)),
+            p.avg_opponent(),
+            p.best_win(),
+            p.best_win(mode="draws"),
+            p.home_club(),
+        )
+        for p in players.values()
+    ]
+    _table = tabulate(
+        table_series_players,
+        headers=[
+            "Username",
+            "Glicko 2",
+            "Record",
+            "Top",
+            "Avg opp",
+            "Best W",
+            "Best D",
+            "Club",
+        ],
+    )
+    print_title(
+        f"Rankings ({len(games)} games, {len(players)} players, {len(clubs)} clubs)"
+    )
+    print(_table)
+
+    # Optionally print match ups
+    if args.matches:
+        func_match_ups(args)
+
+    # Optionally print the rating progress charts
+    if args.graph:
+        print_title("Rating progress charts")
+        for p in players.values():  # pylint: disable=invalid-name
+            print()
+            print(p)
+            p.graph_ratings()
+
+
+def func_match_ups(
+    args: argparse.Namespace,
+) -> Tuple[int, Tuple[List[Game], Dict[str, Player], Set[Club]]]:
+    """Print match ups (used by rate sub-parser)"""
+    if not args.skip_dl:
+        cache_csv_games_file(
+            _csv_bytes_output=get_google_sheet(),
+        )
+
+    def match_up(player1: Player, player2: Player) -> tuple:
+        """Yields an individual match up for the table data"""
+        glicko = glicko2.Glicko2()
+
+        delta_rating = round(player1.rating.mu - player2.rating.mu)
+        rd_avg = int(
+            round(
+                math.sqrt((player1.rating.phi**2 + player2.rating.phi**2) / 2),
+                -1,
+            )
+        )
+        expected_score = round(
+            glicko.expect_score(
+                glicko.scale_down(player1.rating),
+                glicko.scale_down(player2.rating),
+                glicko.reduce_impact(
+                    glicko.scale_down(player2.rating),
+                ),
+            ),
+            2,
+        )
+        gamma = glicko.quality_1vs1(
+            glicko.scale_down(player1.rating),
+            glicko.scale_down(player2.rating),
+        )
+        draw_probability = round(
+            gamma * P_draw(player1.rating.mu, player2.rating.mu), 2
+        )
+        return (
+            player1.username,
+            player2.username,
+            delta_rating,
+            rd_avg,
+            expected_score,
+            draw_probability,
+        )
+
+    # FIXME: don't do this twice, first call rate, then pass in: games, players, clubs
+    games, players, clubs = process_csv()
+    players_list = list(players.values())
+
+    match_ups = []
+    # pylint: disable=invalid-name,consider-using-enumerate
+    for i1 in range(len(players_list)):
+        p1 = players_list[i1]
+        for i2 in range(i1 + 1, len(players)):
+            p2 = players_list[i2]
+            match_ups.append(match_up(p1, p2))
+
+    print_title("Match ups")
+    _table = tabulate(
+        match_ups,
+        headers=["Player 1", "Player 2", "ΔR", "RD", "E", "P(d)"],
+    )
+    print(_table)
+
+    return 0, (games, players, clubs)
