@@ -41,6 +41,7 @@ def parser_func_rate(
     # Print the rankings table
     table_series_players = [
         (
+            i,
             p.username,
             p.str_rating(),
             p.str_wins_draws_losses(),
@@ -50,18 +51,19 @@ def parser_func_rate(
             p.best_win(mode="draws"),
             p.home_club(),
         )
-        for p in players.values()
+        for i, p in enumerate(players.values())
     ]
     _table = tabulate(
         table_series_players,
         headers=[
+            "#",
             "Username",
             "Glicko 2",
             "Record",
             "Top",
             "Avg opp",
-            "B win",
-            "B draw",
+            "Best W",
+            "Best D",
             "Club",
         ],
     )
@@ -102,22 +104,16 @@ def parser_func_match_ups(args: argparse.Namespace) -> Tuple[int, tuple]:
                 -1,
             )
         )
-        # pylint: disable=invalid-name
-        E1 = glicko.expect_score(
-            glicko.scale_down(player1.rating),
-            glicko.scale_down(player2.rating),
-            glicko.reduce_impact(
-                glicko.scale_down(player2.rating),
-            ),
-        )
-        E2 = glicko.expect_score(
-            glicko.scale_down(player2.rating),
-            glicko.scale_down(player1.rating),
-            glicko.reduce_impact(
+        expected_score = round(
+            glicko.expect_score(
                 glicko.scale_down(player1.rating),
+                glicko.scale_down(player2.rating),
+                glicko.reduce_impact(
+                    glicko.scale_down(player2.rating),
+                ),
             ),
+            2,
         )
-        win_probability = round((E1 + (1 - E2)) / 2, 2)
         gamma = glicko.quality_1vs1(
             glicko.scale_down(player1.rating),
             glicko.scale_down(player2.rating),
@@ -130,7 +126,7 @@ def parser_func_match_ups(args: argparse.Namespace) -> Tuple[int, tuple]:
             player2.username,
             delta_rating,
             rd_avg,
-            win_probability,
+            expected_score,
             draw_probability,
         )
 
@@ -148,7 +144,7 @@ def parser_func_match_ups(args: argparse.Namespace) -> Tuple[int, tuple]:
     print_title("Match ups")
     _table = tabulate(
         match_ups,
-        headers=["Player 1", "Player 2", "Δμ", "RD", "P(w)+P(d)/2", "P(d)"],
+        headers=["Player 1", "Player 2", "ΔR", "RD", "E", "P(d)"],
     )
     print(_table)
 

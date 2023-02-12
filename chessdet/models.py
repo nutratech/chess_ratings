@@ -128,7 +128,7 @@ class Game:
         # Variant
         if self.variant not in ENUM_VARIANTS:
             self.validation_error(
-                f"Invalid result: '{self.result}', must be in '{ENUM_VARIANTS}'"
+                f"Invalid variant: '{self.result}', must be in '{ENUM_VARIANTS}'"
             )
 
 
@@ -165,6 +165,7 @@ class Player:
     def rating(self) -> glicko2.Rating:
         """Gets the rating"""
         # FIXME: a lot of these properties would need to support variant != "STANDARD"
+        # TODO: add support for separate rating_white and rating_black properties
         glicko = glicko2.Glicko2()
         _rating = self.ratings[-1]
 
