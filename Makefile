@@ -27,7 +27,8 @@ _venv:
 
 deps: _venv	## Install requirements & sub-module
 	git submodule update --init
-	pip install -r requirements.txt -r requirements-lint.txt
+	pip install -r requirements.txt
+	- pip install -r requirements-lint.txt
 
 
 
@@ -35,7 +36,7 @@ deps: _venv	## Install requirements & sub-module
 # Lint, test, format, clean
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ALL_LINT_LOCS=cr chessdet/ tests/
+ALL_LINT_LOCS=cr *.py chessdet/ tests/
 
 format: _venv	## Format the code
 	isort $(ALL_LINT_LOCS)

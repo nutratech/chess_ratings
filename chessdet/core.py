@@ -194,6 +194,8 @@ def func_match_ups(
     players_list = list(players.values())
 
     match_ups = []
+    n_players = len(players)
+
     # pylint: disable=invalid-name,consider-using-enumerate
     for i1 in range(len(players_list)):
         p1 = players_list[i1]
@@ -201,7 +203,9 @@ def func_match_ups(
             p2 = players_list[i2]
             match_ups.append(match_up(p1, p2))
 
-    print_title("Match ups")
+    _n_pairs = math.comb(n_players, 2)
+    _n_top = min(100, _n_pairs)
+    print_title(f"Match ups (top {_n_top}, {n_players}C2={_n_pairs} possible)")
     _table = tabulate(
         match_ups,
         headers=["Player 1", "Player 2", "ΔR", "RD", "E", "P(d)"],
