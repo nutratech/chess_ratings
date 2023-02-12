@@ -7,7 +7,7 @@ Game model used for players, location, date, outcome, etc.
 Player model used for singles & doubles ratings, username, wins/losses, etc.
 Club model used for grouping games and players to location names.
 """
-from datetime import date
+from datetime import datetime
 from typing import Dict, List, Set, Union
 
 import asciichartpy  # pylint: disable=import-error
@@ -66,7 +66,7 @@ class Game:
     """
 
     def __init__(self, row: Dict[str, str]) -> None:
-        self.date = date.fromisoformat(row["date"])
+        self.date = datetime.strptime(row["date"], "%Y-%m-%d")
 
         self.username_white = row["white"]
         self.username_black = row["black"]

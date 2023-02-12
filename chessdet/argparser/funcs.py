@@ -5,14 +5,16 @@ Created on Fri Feb 10 13:26:28 2023
 @author: shane
 """
 import argparse
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 from chessdet.core import func_rate, process_csv
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import cache_csv_games_file, get_google_sheet
 
+# pylint: disable=unused-argument
 
-def parser_func_download() -> Tuple[int, None]:
+
+def parser_func_download(**kwargs: Dict[str, Any]) -> Tuple[int, None]:
     """Default function for download parser"""
     cache_csv_games_file(
         _csv_bytes_output=get_google_sheet(),
