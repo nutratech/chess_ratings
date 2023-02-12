@@ -12,11 +12,7 @@ from urllib.error import HTTPError, URLError
 import argcomplete
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
-from chessdet.argparser.funcs import (
-    parser_func_download,
-    parser_func_match_ups,
-    parser_func_rate,
-)
+from chessdet.argparser.funcs import parser_func_download, parser_func_rate
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -25,19 +21,24 @@ def build_arg_parser() -> argparse.ArgumentParser:
     arg_parser = argparse.ArgumentParser(prog=__title__)
     arg_parser.add_argument(
         "-v",
-        "--version",
         action="version",
         version=f"{__title__} version {__version__}",
     )
 
     arg_parser.add_argument(
-        "-d", "--debug", action="store_true", help="enable detailed error messages"
+        "-d", dest="debug", action="store_true", help="Enable detailed error messages"
     )
     arg_parser.add_argument(
-        "--no-pager", action="store_true", help="disable paging (print full output)"
+        "--no-pager",
+        dest="no_pager",
+        action="store_true",
+        help="Disable paging (print full output)",
     )
     arg_parser.add_argument(
-        "-s", "--skip-dl", action="store_true", help="skip sheet download, use cached"
+        "-s",
+        dest="skip_dl",
+        action="store_true",
+        help="Skip sheet download, use cached",
     )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,28 +46,24 @@ def build_arg_parser() -> argparse.ArgumentParser:
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     subparsers = arg_parser.add_subparsers(title=f"{__title__} subcommands")
-    # build_subcommands(subparsers)
 
-    # Download parser
+    # Download sub-parser
     subparser_download = subparsers.add_parser(
-        "d", help="Download the latest Sheet from Google"
+        "fetch", help="Download the latest Sheet from Google"
     )
     subparser_download.set_defaults(func=parser_func_download)
 
-    # Rate parser
+    # Rate sub-parser
     subparser_rate = subparsers.add_parser(
-        "r", help="Process CSV, output ratings or player detail"
+        "rate", help="Process CSV, output ratings or player detail"
     )
     subparser_rate.add_argument(
-        "-m", "--matches", action="store_true", help="Also print out fairest match ups"
+        "-m", "--matches", action="store_true", help="include fairest match ups"
+    )
+    subparser_rate.add_argument(
+        "-g", "--graph", action="store_true", help="include rating history charts"
     )
     subparser_rate.set_defaults(func=parser_func_rate)
-
-    # Match ups parser
-    subparser_match_ups = subparsers.add_parser(
-        "m", help="Show fair match ups between roughly equal players"
-    )
-    subparser_match_ups.set_defaults(func=parser_func_match_ups)
 
     return arg_parser
 

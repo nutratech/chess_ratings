@@ -64,6 +64,17 @@ clean:	## Clean up pycache/ and other left overs
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Install
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PY_SYS_INTERPRETER ?= /usr/bin/python3
+
+install:
+	$(PY_SYS_INTERPRETER) -m pip install .
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Verify targets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 N_ANNOTATED_FILES_ACTUAL ?= $(shell grep @author $(shell find chessdet/ -name *.py) | wc -l)
