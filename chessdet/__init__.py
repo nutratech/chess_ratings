@@ -12,7 +12,7 @@ from chessdet.env import CHESS_DET_GOOGLE_SHEET_GAMES_GID, CHESS_DET_GOOGLE_SHEE
 
 # Package info
 __title__ = "cr"
-__version__ = "0.0.0.dev0"
+__version__ = "0.0.1.dev0"
 __author__ = "Shane J"
 __email__ = "chown_tee@proton.me"
 __license__ = "GPL v3"
@@ -102,9 +102,8 @@ ENUM_VARIANTS = {
 class CliConfig:
     """Mutable global store for configuration values"""
 
-    def __init__(self, debug: bool = False, paging: bool = True) -> None:
+    def __init__(self, debug: bool = False) -> None:
         self.debug = debug
-        self.paging = paging
 
     def set_flags(self, args: argparse.Namespace) -> None:
         """
@@ -115,7 +114,6 @@ class CliConfig:
         """
 
         self.debug = args.debug
-        self.paging = not args.no_pager
 
         if self.debug:
             print(f"Console size: {BUFFER_HT}h x {BUFFER_WD}w")

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# PYTHON_ARGCOMPLETE_OK
 """
 Created on Fri Feb 10 12:18:04 2023
 
@@ -28,18 +29,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     arg_parser.add_argument(
         "-d", dest="debug", action="store_true", help="Enable detailed error messages"
     )
-    arg_parser.add_argument(
-        "--no-pager",
-        dest="no_pager",
-        action="store_true",
-        help="Disable paging (print full output)",
-    )
-    arg_parser.add_argument(
-        "-s",
-        dest="skip_dl",
-        action="store_true",
-        help="Skip sheet download, use cached",
-    )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Subparsers
@@ -56,6 +45,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     # Rate sub-parser
     subparser_rate = subparsers.add_parser(
         "rate", help="Process CSV, output ratings or player detail"
+    )
+    subparser_rate.add_argument(
+        "-s",
+        dest="skip_dl",
+        action="store_true",
+        help="Skip sheet download, use cached",
     )
     subparser_rate.add_argument(
         "-m", "--matches", action="store_true", help="include fairest match ups"
@@ -94,7 +89,7 @@ def main(args: Union[None, List[str]] = None) -> int:
 
             # Collect non-default args
             args_dict = dict(vars(parser))
-            for expected_arg in ["func", "debug", "no_pager"]:
+            for expected_arg in ["func", "debug"]:
                 args_dict.pop(expected_arg)
 
             # Run function
