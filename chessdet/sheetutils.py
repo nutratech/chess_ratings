@@ -8,7 +8,8 @@ import csv
 
 import requests
 
-from chessdet import CSV_GAMES_FILE_PATH, CSV_GAMES_URL
+from chessdet import CSV_GAMES_FILE_PATH
+from chessdet.env import CSV_GAMES_URL
 
 
 def get_google_sheet(url: str = CSV_GAMES_URL) -> bytes:

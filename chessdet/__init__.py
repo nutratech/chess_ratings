@@ -8,8 +8,6 @@ import argparse
 import os
 import shutil
 
-from chessdet.env import CHESS_DET_GOOGLE_SHEET_GAMES_GID, CHESS_DET_GOOGLE_SHEET_KEY
-
 # Package info
 __title__ = "cr"
 __version__ = "0.0.1.dev1"
@@ -29,24 +27,6 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 # Console size, don't print more than it
 BUFFER_WD = shutil.get_terminal_size()[0]
 BUFFER_HT = shutil.get_terminal_size()[1]
-
-
-# Google Sheet constants
-
-
-def _url(gid: int) -> str:
-    """Hard-coded URL values pointing to our sheet"""
-
-    return (
-        "https://docs.google.com/spreadsheet/ccc"
-        f"?key={CHESS_DET_GOOGLE_SHEET_KEY}"
-        f"&gid={gid}"
-        "&output=csv"
-    )
-
-
-# URL to Google Sheet
-CSV_GAMES_URL = _url(CHESS_DET_GOOGLE_SHEET_GAMES_GID)
 
 # Location on disk to cache CSV file
 CSV_GAMES_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "games.csv")

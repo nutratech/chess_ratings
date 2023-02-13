@@ -10,8 +10,9 @@ import pytest
 import requests.exceptions
 from requests_mock import Mocker
 
-from chessdet import CSV_GAMES_URL, __title__
+from chessdet import __title__
 from chessdet.__main__ import build_arg_parser, main
+from chessdet.env import CSV_GAMES_URL
 
 
 def test_build_arg_parser() -> None:
