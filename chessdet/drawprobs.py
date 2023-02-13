@@ -84,6 +84,7 @@ def P_draw(r1: float, r2: float) -> float:
 def P_draw_2(r1: float, r2: float) -> float:
     """Calculate draw probability between player1 and player2"""
     r_delta = r1 - r2
+    r_avg = (r1 + r2) / 2
 
     gamma = (
         0.02
@@ -94,7 +95,7 @@ def P_draw_2(r1: float, r2: float) -> float:
     )
 
     std_dev = 200 * math.sqrt(2)
-    return gamma / math.cosh(r_delta / 2 / std_dev)**2
+    return gamma / math.cosh( r_delta / std_dev / 1.5)**2
     # return gamma * math.exp(-(r_delta**2) / std_dev**2)
     # return 1/(1-gamma)*(
     #     1
