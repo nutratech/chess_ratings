@@ -29,7 +29,7 @@ def parser_func_rank(
     """Default function for rank parser"""
 
     # FIXME: make this into an annotation function? Easily, neatly re-usable & testable.
-    if not args.skip_dl:
+    if not args.skip_dl:  # pragma: no cover
         cache_csv_games_file(
             _csv_bytes_output=get_google_sheet(),
         )

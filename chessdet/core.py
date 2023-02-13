@@ -10,7 +10,6 @@ from typing import Dict, List, Set, Tuple
 from tabulate import tabulate
 
 from chessdet import BLACK, CSV_GAMES_FILE_PATH, WHITE
-from chessdet.drawprobs import P_draw_2
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import build_csv_reader
@@ -131,12 +130,10 @@ def func_rank(
 
 def func_match_ups(
     players: Dict[str, Player],
-) -> Tuple[int, List[Tuple[str, str, int, int, float, float]]]:
+) -> Tuple[int, List[Tuple[str, str, int, int, float]]]:
     """Print match ups (used by rank sub-parser)"""
 
-    def match_up(
-        player1: Player, player2: Player
-    ) -> Tuple[str, str, int, int, float, float]:
+    def match_up(player1: Player, player2: Player) -> Tuple[str, str, int, int, float]:
         """Yields an individual match up for the table data"""
         glicko = glicko2.Glicko2()
 
@@ -157,20 +154,12 @@ def func_match_ups(
             ),
             2,
         )
-        gamma = glicko.quality_1vs1(
-            glicko.scale_down(player1.rating),
-            glicko.scale_down(player2.rating),
-        )
-        draw_probability = round(
-            gamma * P_draw_2(player1.rating.mu, player2.rating.mu), 2
-        )
         return (
             player1.username,
             player2.username,
             delta_rating,
             rd_avg,
             expected_score,
-            draw_probability,
         )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -193,7 +182,7 @@ def func_match_ups(
     print_title(f"Match ups (top {_n_top}, {n_players}C2={_n_pairs} possible)")
     _table = tabulate(
         match_ups,
-        headers=["Player 1", "Player 2", "ΔR", "RD", "E", "P(d)"],
+        headers=["Player 1", "Player 2", "ΔR", "RD", "E"],
     )
     print(_table)
 
