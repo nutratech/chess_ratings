@@ -13,7 +13,7 @@ from urllib.error import HTTPError, URLError
 import argcomplete
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
-from chessdet.argparser.funcs import parser_func_download, parser_func_rate
+from chessdet.argparser.funcs import parser_func_download, parser_func_rank
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -42,23 +42,23 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     subparser_download.set_defaults(func=parser_func_download)
 
-    # Rate sub-parser
-    subparser_rate = subparsers.add_parser(
-        "rate", help="Process CSV, output ratings or player detail"
+    # Rank sub-parser
+    subparser_rank = subparsers.add_parser(
+        "rank", help="Process CSV, output ratings or player detail"
     )
-    subparser_rate.add_argument(
+    subparser_rank.add_argument(
         "-s",
         dest="skip_dl",
         action="store_true",
         help="Skip sheet download, use cached",
     )
-    subparser_rate.add_argument(
+    subparser_rank.add_argument(
         "-m", "--matches", action="store_true", help="include fairest match ups"
     )
-    subparser_rate.add_argument(
+    subparser_rank.add_argument(
         "-g", "--graph", action="store_true", help="include rating history charts"
     )
-    subparser_rate.set_defaults(func=parser_func_rate)
+    subparser_rank.set_defaults(func=parser_func_rank)
 
     return arg_parser
 

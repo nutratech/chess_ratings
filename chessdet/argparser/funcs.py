@@ -7,9 +7,10 @@ Created on Fri Feb 10 13:26:28 2023
 import argparse
 from typing import Any, Dict, List, Set, Tuple
 
-from chessdet.core import func_rate, process_csv
+from chessdet.core import func_match_ups, func_rank, process_csv
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import cache_csv_games_file, get_google_sheet
+from chessdet.utils import print_title
 
 # pylint: disable=unused-argument
 
@@ -22,10 +23,10 @@ def parser_func_download(**kwargs: Dict[str, Any]) -> Tuple[int, None]:
     return 0, None
 
 
-def parser_func_rate(
+def parser_func_rank(
     args: argparse.Namespace,
 ) -> Tuple[int, Tuple[List[Game], Dict[str, Player], Set[Club]]]:
-    """Default function for rate parser"""
+    """Default function for rank parser"""
 
     # FIXME: make this into an annotation function? Easily, neatly re-usable & testable.
     if not args.skip_dl:
@@ -33,8 +34,20 @@ def parser_func_rate(
             _csv_bytes_output=get_google_sheet(),
         )
 
+    # Rate players, print rankings
     games, players, clubs = process_csv()
+    func_rank(games=games, players=players, clubs=list(clubs))
 
-    func_rate(args, games=games, players=players, clubs=list(clubs))
+    # Optionally print match ups
+    if args.matches:
+        func_match_ups(players=players)
+
+    # Optionally print the rating progress charts
+    if args.graph:
+        print_title("Rating progress charts")
+        for p in players.values():  # pylint: disable=invalid-name
+            print()
+            print(p)
+            p.graph_ratings()
 
     return 0, (games, players, clubs)

@@ -4,7 +4,6 @@ Created on Fri Feb 10 13:37:46 2023
 
 @author: shane
 """
-import argparse
 import math
 from typing import Dict, List, Set, Tuple
 
@@ -90,13 +89,12 @@ def process_csv(
     return games, players, clubs
 
 
-def func_rate(
-    args: argparse.Namespace,
+def func_rank(
     games: List[Game],
     players: Dict[str, Player],
     clubs: List[Club],
 ) -> None:
-    """Rate function used by rate sub-parser"""
+    """Rank function used by rank sub-parser"""
 
     # Print the rankings table
     table_series_players = [
@@ -130,23 +128,11 @@ def func_rate(
     )
     print(_table)
 
-    # Optionally print match ups
-    if args.matches:
-        func_match_ups(players=players)
-
-    # Optionally print the rating progress charts
-    if args.graph:
-        print_title("Rating progress charts")
-        for p in players.values():  # pylint: disable=invalid-name
-            print()
-            print(p)
-            p.graph_ratings()
-
 
 def func_match_ups(
     players: Dict[str, Player],
 ) -> Tuple[int, List[Tuple[str, str, int, int, float, float]]]:
-    """Print match ups (used by rate sub-parser)"""
+    """Print match ups (used by rank sub-parser)"""
 
     def match_up(
         player1: Player, player2: Player
