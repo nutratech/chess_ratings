@@ -14,7 +14,7 @@ from chessdet import BLACK, CSV_GAMES_FILE_PATH, WHITE
 from chessdet.drawprobs import P_draw
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
-from chessdet.sheetutils import build_csv_reader, cache_csv_games_file, get_google_sheet
+from chessdet.sheetutils import build_csv_reader
 from chessdet.utils import get_or_create_player_by_name, print_title
 
 
@@ -132,7 +132,7 @@ def func_rate(
 
     # Optionally print match ups
     if args.matches:
-        func_match_ups(args)
+        func_match_ups(players=players)
 
     # Optionally print the rating progress charts
     if args.graph:
@@ -144,15 +144,13 @@ def func_rate(
 
 
 def func_match_ups(
-    args: argparse.Namespace,
-) -> Tuple[int, Tuple[List[Game], Dict[str, Player], Set[Club]]]:
+    players: Dict[str, Player],
+) -> Tuple[int, List[Tuple[str, str, int, int, float, float]]]:
     """Print match ups (used by rate sub-parser)"""
-    if not args.skip_dl:
-        cache_csv_games_file(
-            _csv_bytes_output=get_google_sheet(),
-        )
 
-    def match_up(player1: Player, player2: Player) -> tuple:
+    def match_up(
+        player1: Player, player2: Player
+    ) -> Tuple[str, str, int, int, float, float]:
         """Yields an individual match up for the table data"""
         glicko = glicko2.Glicko2()
 
@@ -189,8 +187,9 @@ def func_match_ups(
             draw_probability,
         )
 
-    # FIXME: don't do this twice, first call rate, then pass in: games, players, clubs
-    games, players, clubs = process_csv()
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Main match up method
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     players_list = list(players.values())
 
     match_ups = []
@@ -212,4 +211,4 @@ def func_match_ups(
     )
     print(_table)
 
-    return 0, (games, players, clubs)
+    return 0, match_ups

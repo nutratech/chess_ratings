@@ -36,17 +36,11 @@ Running
 
 You can rate and download with this.
 
-``./cr r``
+``./cr rate``
 
 To skip downloading (assume cached) AND print match ups & graphs, do this.
 
-``./cr -s r -m -g``
-
-
-Match ups for given players
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``./cr m``
+``./cr rate -smg``
 
 
 Filtering Players

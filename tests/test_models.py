@@ -5,6 +5,7 @@ Created on Wed Feb  8 14:11:07 2023
 @author: shane
 """
 import csv
+from typing import Dict
 
 import pytest
 
@@ -52,7 +53,7 @@ def test_Game() -> None:
 def test_Game_validate_fields() -> None:
     """Test field validation on Game entity"""
 
-    def _default_row_builder() -> dict:
+    def _default_row_builder() -> Dict[str, str]:
         return {
             "date": "2023-01-01",
             "white": "shane j",
@@ -60,7 +61,7 @@ def test_Game_validate_fields() -> None:
             "result": "Black",
             "outcome": "Resignation",
             "location": "Royal Oak (Methodist Church)",
-            "time": "15|10",
+            "time": "15+10",
             "# of moves": "37",
             "opening": "B37",
             "variant": str(),

@@ -57,8 +57,10 @@ test: _venv	## Test the code
 	coverage run -m pytest tests/
 	coverage report
 
+ALL_CLEAN_LOCS=build/ *.egg-info
 ALL_CLEAN_ARGS=-name .coverage -o -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache
 clean:	## Clean up pycache/ and other left overs
+	rm -rf $(ALL_CLEAN_LOCS)
 	rm -rf $(shell find . -maxdepth 1 $(ALL_CLEAN_ARGS))
 	rm -rf $(shell find $(ALL_LINT_LOCS) $(ALL_CLEAN_ARGS))
 
@@ -70,7 +72,7 @@ clean:	## Clean up pycache/ and other left overs
 
 PY_SYS_INTERPRETER ?= /usr/bin/python3
 
-install:
+install:	## Install into user space
 	$(PY_SYS_INTERPRETER) -m pip install .
 
 
@@ -78,7 +80,8 @@ install:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Verify targets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-N_ANNOTATED_FILES_ACTUAL ?= $(shell grep @author $(shell find chessdet/ -name *.py) | wc -l)
-N_ANNOTATED_FILES_EXPECT ?= $(shell find chessdet/ -name *.py | grep -v glicko2 | wc -l)
+
+N_ANNOTATED_FILES_ACTUAL ?= $(shell grep @author $(shell git ls-files \*.py) | wc -l)
+N_ANNOTATED_FILES_EXPECT ?= $(shell git ls-files \*.py | grep -v glicko2 | wc -l)
 verify/py-annotated:	## Verify all pythong files have the annotation at top
 	[[ "$(N_ANNOTATED_FILES_ACTUAL)" == "$(N_ANNOTATED_FILES_EXPECT)" ]]

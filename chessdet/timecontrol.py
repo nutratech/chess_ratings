@@ -11,6 +11,7 @@ TIME_CONTROL_BULLET = ("Bullet", 180)
 TIME_CONTROL_BLITZ = ("Blitz", 480)
 TIME_CONTROL_RAPID = ("Rapid", 1500)
 TIME_CONTROL_CLASSICAL = ("Classical", 8400)
+# TODO: should classical be set to the highest? Is correspondence something else?
 TIME_CONTROL_CORRESPONDENCE = ("Correspondence", math.inf)
 
 TIME_CONTROLS = [
@@ -27,8 +28,8 @@ def game_type(base_time: int, increment: int) -> str:
     Return the type of game based on base time and increment formula.
     (See: https://lichess.org/faq#time-controls)
 
-    :param base_time: Starting time in seconds.
-    :param increment: Increment in seconds.
+    :param base_time: Starting time in SECONDS.
+    :param increment: Increment in SECONDS.
     """
 
     game_duration = base_time + 40 * increment

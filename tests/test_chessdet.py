@@ -16,10 +16,8 @@ def test_CliConfig() -> None:
     # Test initial values
     CLI_CONFIG = CliConfig()
     assert not CLI_CONFIG.debug
-    assert CLI_CONFIG.paging
 
     # Test ability to store & retrieve updated values
-    CLI_CONFIG.set_flags(argparse.Namespace(debug=True, no_pager=True))
+    CLI_CONFIG.set_flags(argparse.Namespace(debug=True))
 
-    assert CLI_CONFIG
-    assert not CLI_CONFIG.paging
+    assert CLI_CONFIG.debug

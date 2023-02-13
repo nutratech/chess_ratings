@@ -13,6 +13,7 @@ from typing import Dict, List, Set, Union
 import asciichartpy  # pylint: disable=import-error
 
 from chessdet import (
+    CLI_CONFIG,
     DICT_OUTCOME_TO_SCORE,
     ENUM_OUTCOMES,
     ENUM_VARIANTS,
@@ -28,6 +29,7 @@ CLUB_DICT = {
     "Oak Park (Community Center)": "Oak Park",
     "Port Huron (Palmer Park Rec Center)": "Port Huron",
 }
+
 
 # pylint: disable=too-few-public-methods
 
@@ -85,21 +87,27 @@ class Game:
         self.url_analysis = row["analysis"]
         self.notes = row["notes"]
 
+        # Compute time control
+        if self.time_control:
+            self.base_time = int(self.time_control.split("+")[0]) * 60
+            self.increment = int(self.time_control.split("+")[1])
+            # Assign category
+            self.category = timecontrol.game_type(self.base_time, self.increment)
+        else:
+            # NOTE: defaults to Classical
+            self.category = timecontrol.game_type(30 * 60, 20)
+
         # Validation
         self.validate_fields()
 
-        # Compute time control
-        if self.time_control:
-            self.base_time = int(self.time_control.split("|")[0])
-            self.increment = int(self.time_control.split("|")[0])
-            # Assign category
-            self.category = timecontrol.game_type(self.base_time, self.increment)
+        if CLI_CONFIG.debug:
+            print(self)
 
     def __str__(self) -> str:
         return (
-            f"{self.date} "
-            f"{self.username_white} vs. {self.username_black} "
-            f"{self.score}"
+            f"{self.date.date()} [{self.category}] "
+            f"{self.score} "
+            f"{self.username_white} vs. {self.username_black}"
         )
 
     def validation_error(self, err_msg: str) -> None:
@@ -156,6 +164,9 @@ class Player:
         # NOTE: separate scripts doubles & singles, it would aggregate both (is okay?)
         # Used to decide home club
         self.club_appearances: Dict[str, int] = {}
+
+        # WIP section
+        self.games: List[Game] = []
 
     def __str__(self) -> str:
         # NOTE: return this as a tuple, and tabulate it (rather than format as string)?
