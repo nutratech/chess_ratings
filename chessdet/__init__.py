@@ -12,7 +12,7 @@ from chessdet.env import CHESS_DET_GOOGLE_SHEET_GAMES_GID, CHESS_DET_GOOGLE_SHEE
 
 # Package info
 __title__ = "cr"
-__version__ = "0.0.1.dev0"
+__version__ = "0.0.1.dev1"
 __author__ = "Shane J"
 __email__ = "chown_tee@proton.me"
 __license__ = "GPL v3"

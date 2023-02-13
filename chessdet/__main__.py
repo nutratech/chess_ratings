@@ -8,9 +8,10 @@ Created on Fri Feb 10 12:18:04 2023
 import argparse
 import time
 from typing import List, Union
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 
 import argcomplete
+import requests
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
 from chessdet.argparser.funcs import parser_func_download, parser_func_rank
@@ -108,18 +109,20 @@ def main(args: Union[None, List[str]] = None) -> int:
 
     # Try to run the function
     exit_code = 1
+    conn_errs = (requests.exceptions.ConnectionError, URLError)
+
     try:
         exit_code, *_results = func(_parser)
-    except HTTPError as http_error:
-        err_msg = f"{http_error.code}: {repr(http_error)}"
+    except requests.exceptions.HTTPError as http_error:
+        err_msg = f"{http_error.response.status_code}: {repr(http_error)}"
         print("Server response error, try again: " + err_msg)
         if CLI_CONFIG.debug:
             raise
-    except URLError as url_error:
-        print("Connection error, check your internet: " + repr(url_error.reason))
+    except conn_errs as conn_url_error:  # pragma: no cover
+        print("Connection error, check your internet: " + repr(conn_url_error))
         if CLI_CONFIG.debug:
             raise
-    except Exception as exception:  # pylint: disable=broad-except
+    except Exception as exception:  # pragma: no cover  # pylint: disable=broad-except
         print("Unforeseen error, run with -d for more info: " + repr(exception))
         print(f"You can open an issue here: {__url__}")
         print(f"Or send me an email with the debug output: {__email__}")
