@@ -109,7 +109,7 @@ def main(args: Union[None, List[str]] = None) -> int:
 
     # Try to run the function
     exit_code = 1
-    conn_errs = (requests.exceptions.ConnectionError, URLError)
+    conn_errs = (requests.exceptions.ConnectionError, requests.ReadTimeout, URLError)
 
     try:
         exit_code, *_results = func(_parser)

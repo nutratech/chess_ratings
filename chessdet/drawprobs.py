@@ -4,7 +4,7 @@ Created on Fri Feb 10 16:27:33 2023
 
 @author: shane
 """
-
+import math
 
 # pylint: disable=invalid-name
 
@@ -79,3 +79,25 @@ def P_draw(r1: float, r2: float) -> float:
     NOTE: r1 is white, r2 is black
     """
     return 1 - P_white(r1, r2) - P_black(r1, r2)
+
+
+def P_draw_2(r1: float, r2: float) -> float:
+    """Calculate draw probability between player1 and player2"""
+    r_delta = r1 - r2
+
+    gamma = (
+        0.02
+        + 0.0000169375 * r1
+        + 6.74485 * 10**-9 * r1**2
+        + 5.96321 * 10**-11 * r1**3
+        - 1.22154 * 10**-14 * r1**4
+    )
+
+    std_dev = 200 * math.sqrt(2)
+    return gamma / math.cosh(r_delta / 2 / std_dev)**2
+    # return gamma * math.exp(-(r_delta**2) / std_dev**2)
+    # return 1/(1-gamma)*(
+    #     1
+    #     / (math.sqrt(2 * math.pi) * math.e)
+    #     * math.exp(-((r_delta / 200) ** 2) / (2 * math.e**2))
+    # )

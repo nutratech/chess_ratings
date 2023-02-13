@@ -1,2 +1,3 @@
 *.csv linguist-language=CSV
+*.wls linguist-language=Mathematica
 

@@ -9,12 +9,9 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 import pytest
 
-from chessdet.drawprobs import P_black, P_draw, P_white
+from chessdet.drawprobs import P_black, P_draw, P_draw_2, P_white
 
 # pylint: disable=invalid-name
-
-
-# BASE_RATING = 1500
 
 
 def _range_domain(mode: str, base_rating: int) -> Tuple[List[int], List[float]]:
@@ -44,9 +41,17 @@ def test_P_draw(base_rating: int) -> None:
     _range_black, _domain_black = _range_domain(mode="black", base_rating=base_rating)
     _range_draw, _domain_draw = _range_domain(mode="draw", base_rating=base_rating)
 
-    # plot
+    # Test for original paper
     _, ax = plt.subplots()
     ax.scatter(_range_white, _domain_white)
     ax.scatter(_range_black, _domain_black)
     ax.scatter(_range_draw, _domain_draw)
+
+    # New test for new draw func
+    # base_rating = 1500
+    _range = list(range(base_rating - 700, base_rating + 700, 10))
+    _domain = [P_draw_2(base_rating, x) for x in _range]
+    ax.scatter(_range, _domain)
+
+    # plot
     plt.show()

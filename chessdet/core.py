@@ -10,7 +10,7 @@ from typing import Dict, List, Set, Tuple
 from tabulate import tabulate
 
 from chessdet import BLACK, CSV_GAMES_FILE_PATH, WHITE
-from chessdet.drawprobs import P_draw
+from chessdet.drawprobs import P_draw_2
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import build_csv_reader
@@ -162,7 +162,7 @@ def func_match_ups(
             glicko.scale_down(player2.rating),
         )
         draw_probability = round(
-            gamma * P_draw(player1.rating.mu, player2.rating.mu), 2
+            gamma * P_draw_2(player1.rating.mu, player2.rating.mu), 2
         )
         return (
             player1.username,
