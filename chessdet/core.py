@@ -70,7 +70,6 @@ def process_csv(
 
     # Read CSV
     reader = build_csv_reader(csv_path)
-
     for row in reader:
         game = Game(row)
         games.append(game)
@@ -170,10 +169,10 @@ def func_match_ups(
     match_ups = []
     n_players = len(players)
 
-    # pylint: disable=invalid-name,consider-using-enumerate
-    for i1 in range(len(players_list)):
+    # pylint: disable=invalid-name
+    for i1 in range(n_players):
         p1 = players_list[i1]
-        for i2 in range(i1 + 1, len(players)):
+        for i2 in range(i1 + 1, n_players):
             p2 = players_list[i2]
             match_ups.append(match_up(p1, p2))
 
