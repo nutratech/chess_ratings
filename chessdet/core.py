@@ -91,10 +91,10 @@ def func_rank(
     games: List[Game],
     players: Dict[str, Player],
     clubs: List[Club],
+    extended_titles: bool = False,
 ) -> None:
     """Rank function used by rank sub-parser"""
 
-    # Print the rankings table
     table_series_players = [
         (
             p.username,
@@ -108,9 +108,10 @@ def func_rank(
         )
         for p in players.values()
     ]
-    _table = tabulate(
-        table_series_players,
-        headers=[
+
+    # Condensed titles for command line, extended ones for sheet (formatting issue)
+    if extended_titles:
+        headers = [
             "Username",
             "Glicko 2",
             "Record",
@@ -119,8 +120,21 @@ def func_rank(
             "Best W",
             "Best D",
             "Club",
-        ],
-    )
+        ]
+    else:
+        headers = [
+            "\nUsername",
+            "\nGlicko 2",
+            "\nRecord",
+            "\nTop",
+            "Avg\nopp",
+            "Best\nWin",
+            "Best\nDraw",
+            "\nClub",
+        ]
+
+    # Print the rankings table
+    _table = tabulate(table_series_players, headers)
     print_title(
         f"Rankings ({len(games)} games, {len(players)} players, {len(clubs)} clubs)"
     )

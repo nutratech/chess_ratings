@@ -83,7 +83,7 @@ install:	## Install into user space
 
 rank:	## Rank (copy for google sheet)
 	./cr fetch
-	./cr rank -smg | xclip -sel clip
+	./cr rank -smga | xclip -sel clip
 
 
 

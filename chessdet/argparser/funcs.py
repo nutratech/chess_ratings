@@ -36,7 +36,12 @@ def parser_func_rank(
 
     # Rate players, print rankings
     games, players, clubs = process_csv()
-    func_rank(games=games, players=players, clubs=list(clubs))
+    func_rank(
+        games=games,
+        players=players,
+        clubs=list(clubs),
+        extended_titles=args.abbrev_titles,
+    )
 
     # Optionally print match ups
     if args.matches:

@@ -59,6 +59,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     subparser_rank.add_argument(
         "-g", "--graph", action="store_true", help="include rating history charts"
     )
+    subparser_rank.add_argument(
+        "-a", "--abbrev-titles", action="store_true", help="abbreviate titles in table"
+    )
     subparser_rank.set_defaults(func=parser_func_rank)
 
     return arg_parser
