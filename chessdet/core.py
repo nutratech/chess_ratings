@@ -176,6 +176,10 @@ def func_match_ups(
             p2 = players_list[i2]
             match_ups.append(match_up(p1, p2))
 
+    # Sort
+    match_ups.sort(key=lambda x: x[-1], reverse=False)
+
+    # Print off top matches
     _n_pairs = math.comb(n_players, 2)
     _n_top = min(100, _n_pairs)
     print_title(f"Match ups (top {_n_top}, {n_players}C2={_n_pairs} possible)")
