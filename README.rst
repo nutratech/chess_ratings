@@ -38,6 +38,10 @@ You can rate and download with this.
 
 ``./cr rank``
 
+To download separately use this.
+
+``./cr fetch``
+
 To skip downloading (assume cached) AND print match ups & graphs, do this.
 
 ``./cr rank -smg``
