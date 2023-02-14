@@ -20,7 +20,9 @@ def test_parser_func_rank() -> None:
     """Test "r" subcommand (rank)"""
     # TODO: inject mock HTTP response, OR use test_data CSV
     exit_code, result = parser_func_rank(
-        argparse.Namespace(skip_dl=True, matches=True, graph=True, abbrev_titles=True)
+        argparse.Namespace(
+            skip_dl=True, matches=True, graph=True, no_abbrev_titles=True
+        )
     )
     assert exit_code == 0
     assert result

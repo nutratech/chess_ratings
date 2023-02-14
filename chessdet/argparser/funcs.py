@@ -40,7 +40,7 @@ def parser_func_rank(
         games=games,
         players=players,
         clubs=list(clubs),
-        extended_titles=args.abbrev_titles,
+        extended_titles=args.no_abbrev_titles,
     )
 
     # Optionally print match ups
