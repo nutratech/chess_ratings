@@ -86,7 +86,7 @@ def main(args: Union[None, List[str]] = None) -> int:
         if hasattr(parser, "func"):
             # Print help for nested commands
             if parser.func.__name__ == "print_help":
-                return 0, parser.func()
+                return 0, parser.func()  # pragma: no cover
 
             # Collect non-default args
             args_dict = dict(vars(parser))
