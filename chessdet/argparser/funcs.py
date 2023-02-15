@@ -53,6 +53,7 @@ def parser_func_rank(
         for p in players.values():  # pylint: disable=invalid-name
             print()
             print(p)
+            print("Last 10:", [round(x.mu) for x in p.ratings[:10]])
             p.graph_ratings()
 
     return 0, (games, players, clubs)
