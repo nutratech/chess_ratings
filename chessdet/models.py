@@ -246,8 +246,10 @@ class Player:
 
         return f"+{n_wins} ={n_draws} -{n_losses}"
 
-    def avg_opponent(self) -> Union[int, float]:
+    def avg_opponent(self, variant: str, score: str, category: str) -> int:
         """Returns average opponent"""
+
+        sum_ratings = sum(x for x in self.games)
 
         _avg_opponent = sum(
             sum(self.opponent_ratings[_result])
