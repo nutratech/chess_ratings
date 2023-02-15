@@ -19,40 +19,47 @@ from chessdet.utils import get_or_create_player_by_name, print_title
 def update_players_ratings(players: Dict[str, Player], game: Game) -> None:
     """Update two players' ratings, based on a game outcome together"""
 
-    def do_game(player1: Player, player2: Player, drawn: bool = False) -> None:
+    def do_game(player1: Player, player2: Player, drawn: bool) -> None:
         """NOTE: player1 is winner by default, unless drawn (then it doesn't matter)"""
-
-        # Add opponent ratings
-        if drawn:
-            player1.opponent_ratings["draws"].append(player2.rating.mu)
-            player2.opponent_ratings["draws"].append(player1.rating.mu)
-        else:
-            player1.opponent_ratings["wins"].append(player2.rating.mu)
-            player2.opponent_ratings["losses"].append(player1.rating.mu)
-
-        # Add clubs
-        player1.add_club(game.location.name)
-        player2.add_club(game.location.name)
-
+        # NEW
         # Update ratings
         _new_rating_player1, _new_rating_player2 = glicko.rate_1vs1(
             player1.rating, player2.rating, drawn=drawn
         )
-        player1.ratings.append(_new_rating_player1)
-        player2.ratings.append(_new_rating_player2)
+        game.ratings_white
+
+        # OLD
+        # Add opponent ratings
+        # if drawn:
+        #     player1.opponent_ratings["draws"].append(player2.rating.mu)
+        #     player2.opponent_ratings["draws"].append(player1.rating.mu)
+        # else:
+        #     player1.opponent_ratings["wins"].append(player2.rating.mu)
+        #     player2.opponent_ratings["losses"].append(player1.rating.mu)
+        #
+        # # Add clubs
+        # player1.add_club(game.location.name)
+        # player2.add_club(game.location.name)
+        #
+        # # Update ratings
+        # _new_rating_player1, _new_rating_player2 = glicko.rate_1vs1(
+        #     player1.rating, player2.rating, drawn=drawn
+        # )
+        # player1.ratings.append(_new_rating_player1)
+        # player2.ratings.append(_new_rating_player2)
 
     # Create the rating engine
     glicko = glicko2.Glicko2()
 
-    # Extract (or create) player_white & player_black from Players Dict
-    player_white = get_or_create_player_by_name(players, game.username_white)
-    player_black = get_or_create_player_by_name(players, game.username_black)
+    # # Extract (or create) player_white & player_black from Players Dict
+    # player_white = get_or_create_player_by_name(players, game.username_white)
+    # player_black = get_or_create_player_by_name(players, game.username_black)
 
     # Run the helper methods
     if game.score == WHITE:
-        do_game(player_white, player_black)
+        do_game(player_white, player_black, drawn=False)
     elif game.score == BLACK:
-        do_game(player_black, player_white)
+        do_game(player_black, player_white, drawn=False)
     else:
         # NOTE: already validated with ENUM_SCORES and self.validation_error()
         do_game(player_white, player_black, drawn=True)
@@ -71,12 +78,21 @@ def process_csv(
     # Read CSV
     reader = build_csv_reader(csv_path)
     for row in reader:
-        game = Game(row)
+        # Extract (or create) player_white & player_black from Players Dict
+        player_white = get_or_create_player_by_name(players, row["white"])
+        player_black = get_or_create_player_by_name(players, row["black"])
+
+        game = Game(row, player_white, player_black)
         games.append(game)
+
         clubs.add(game.location)
 
         # Update players stats and ratings
         update_players_ratings(players, game)
+
+        player_white.games.append(game)
+        player_black.games.append(game)
+        player_white.clubs.
 
     # Sort players by ratings
     sorted_players = sorted(
