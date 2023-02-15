@@ -7,14 +7,14 @@ Created on Fri Feb 10 12:18:04 2023
 """
 import argparse
 import time
-from typing import List, Union
+from typing import Any, List, Tuple, Union
 from urllib.error import URLError
 
 import argcomplete
 import requests
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
-from chessdet.argparser.funcs import parser_func_download, parser_func_rank
+from chessdet.argparser import build_subcommands
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -28,41 +28,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
 
     arg_parser.add_argument(
-        "-d", dest="debug", action="store_true", help="Enable detailed error messages"
+        "-d", dest="debug", action="store_true", help="enable verbose logging (debug)"
     )
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Subparsers
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    subparsers = arg_parser.add_subparsers(title=f"{__title__} subcommands")
-
-    # Download sub-parser
-    subparser_download = subparsers.add_parser(
-        "fetch", help="Download the latest Sheet from Google"
-    )
-    subparser_download.set_defaults(func=parser_func_download)
-
-    # Rank sub-parser
-    subparser_rank = subparsers.add_parser(
-        "rank", help="Process CSV, output ratings or player detail"
-    )
-    subparser_rank.add_argument(
-        "-s",
-        dest="skip_dl",
-        action="store_true",
-        help="Skip sheet download, use cached",
-    )
-    subparser_rank.add_argument(
-        "-m", "--matches", action="store_true", help="include fairest match ups"
-    )
-    subparser_rank.add_argument(
-        "-g", "--graph", action="store_true", help="include rating history charts"
-    )
-    subparser_rank.add_argument(
-        "--no-abbrev-titles", action="store_true", help="don't abbreviate table titles"
-    )
-    subparser_rank.set_defaults(func=parser_func_rank)
+    build_subcommands(arg_parser)
 
     return arg_parser
 
@@ -84,7 +54,7 @@ def main(args: Union[None, List[str]] = None) -> int:
             return arg_parser.parse_args()
         return arg_parser.parse_args(args=args)
 
-    def func(parser: argparse.Namespace) -> tuple:
+    def func(parser: argparse.Namespace) -> Tuple[int, Any]:
         """Executes a function for a given argument call to the parser"""
         if hasattr(parser, "func"):
             # Print help for nested commands
