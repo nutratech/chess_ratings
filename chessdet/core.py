@@ -9,60 +9,41 @@ from typing import Dict, List, Set, Tuple
 
 from tabulate import tabulate
 
-from chessdet import BLACK, CSV_GAMES_FILE_PATH, WHITE
+from chessdet import BLACK, CSV_GAMES_FILE_PATH, STANDARD, WHITE
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import build_csv_reader
 from chessdet.utils import get_or_create_player_by_name, print_title
 
 
-def update_players_ratings(players: Dict[str, Player], game: Game) -> None:
+def update_players_ratings(
+    player_white: Player, player_black: Player, game: Game
+) -> None:
     """Update two players' ratings, based on a game outcome together"""
 
-    def do_game(player1: Player, player2: Player, drawn: bool) -> None:
+    def update_player_ratings(player1: Player, player2: Player, drawn: bool) -> None:
         """NOTE: player1 is winner by default, unless drawn (then it doesn't matter)"""
-        # NEW
-        # Update ratings
         _new_rating_player1, _new_rating_player2 = glicko.rate_1vs1(
             player1.rating, player2.rating, drawn=drawn
         )
-        game.ratings_white
-
-        # OLD
-        # Add opponent ratings
-        # if drawn:
-        #     player1.opponent_ratings["draws"].append(player2.rating.mu)
-        #     player2.opponent_ratings["draws"].append(player1.rating.mu)
-        # else:
-        #     player1.opponent_ratings["wins"].append(player2.rating.mu)
-        #     player2.opponent_ratings["losses"].append(player1.rating.mu)
-        #
-        # # Add clubs
-        # player1.add_club(game.location.name)
-        # player2.add_club(game.location.name)
-        #
-        # # Update ratings
-        # _new_rating_player1, _new_rating_player2 = glicko.rate_1vs1(
-        #     player1.rating, player2.rating, drawn=drawn
-        # )
-        # player1.ratings.append(_new_rating_player1)
-        # player2.ratings.append(_new_rating_player2)
+        player1.ratings.append(_new_rating_player1)
+        player2.ratings.append(_new_rating_player2)
 
     # Create the rating engine
     glicko = glicko2.Glicko2()
 
-    # # Extract (or create) player_white & player_black from Players Dict
-    # player_white = get_or_create_player_by_name(players, game.username_white)
-    # player_black = get_or_create_player_by_name(players, game.username_black)
-
     # Run the helper methods
     if game.score == WHITE:
-        do_game(player_white, player_black, drawn=False)
+        update_player_ratings(player_white, player_black, drawn=False)
     elif game.score == BLACK:
-        do_game(player_black, player_white, drawn=False)
+        update_player_ratings(player_black, player_white, drawn=False)
     else:
         # NOTE: already validated with ENUM_SCORES and self.validation_error()
-        do_game(player_white, player_black, drawn=True)
+        update_player_ratings(player_white, player_black, drawn=True)
+
+    # Add to game.ratings stack
+    game.ratings_white.append(player_white.rating)
+    game.ratings_black.append(player_black.rating)
 
 
 def process_csv(
@@ -82,17 +63,20 @@ def process_csv(
         player_white = get_or_create_player_by_name(players, row["white"])
         player_black = get_or_create_player_by_name(players, row["black"])
 
+        # Store game and club
         game = Game(row, player_white, player_black)
         games.append(game)
 
         clubs.add(game.location)
 
         # Update players stats and ratings
-        update_players_ratings(players, game)
+        update_players_ratings(player_white, player_black, game)
 
+        # Add games and club
         player_white.games.append(game)
         player_black.games.append(game)
-        player_white.clubs.
+        player_white.add_club(game.location.name)
+        player_black.add_club(game.location.name)
 
     # Sort players by ratings
     sorted_players = sorted(
@@ -117,7 +101,7 @@ def func_rank(
             p.str_rating(),
             p.str_wins_draws_losses(),
             round(max(x.mu for x in p.ratings)),
-            p.avg_opponent(),
+            p.avg_opponent(variant=STANDARD, score="all", time="all"),
             p.best_result(mode="wins"),
             p.best_result(mode="draws"),
             p.home_club(),
