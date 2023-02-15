@@ -49,12 +49,12 @@ def update_players_ratings(players: Dict[str, Player], game: Game) -> None:
     player_black = get_or_create_player_by_name(players, game.username_black)
 
     # Run the helper methods
-    if game.result == WHITE:
+    if game.score == WHITE:
         do_game(player_white, player_black)
-    elif game.result == BLACK:
+    elif game.score == BLACK:
         do_game(player_black, player_white)
     else:
-        # NOTE: already validated in: self.score = DICT_OUTCOME_TO_SCORE[self.result]
+        # NOTE: already validated with ENUM_SCORES and self.validation_error()
         do_game(player_white, player_black, drawn=True)
 
 

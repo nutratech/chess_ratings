@@ -1,4 +1,10 @@
-Date,White,Black,Result,Outcome,Location,Time,# of moves,Analysis,Opening,Variant,Notes
-2023-02-09,Patrick??,Shane J,White,Resignation,Oak Park (Community Center),,56,https://lichess.org/JMn1upzU,,,
-2023-02-09,Ed R,Shane J,Black,Resignation,Oak Park (Community Center),,30,https://lichess.org/x78J90uE,,,
-2023-02-09,Richard B,Shane J,Black,Resignation,Oak Park (Community Center),,55,https://lichess.org/oEFvy6LZ,,,Time pressure at end
+Date,White,Black,Score,Termination,Location,Time,# moves,Analysis,Opening,Variant,Notes
+2023-02-09,Patrick??,Shane J,1-0,Resignation,Oak Park (Community Center),,56,https://lichess.org/JMn1upzU,,,
+2023-02-09,Ed R,Shane J,0-1,Resignation,Oak Park (Community Center),,30,https://lichess.org/x78J90uE,,,
+2023-02-09,Richard B,Shane J,0-1,Resignation,Oak Park (Community Center),,55,https://lichess.org/oEFvy6LZ,,,Time pressure at end
+2023-02-14,Shane J,Greg M,1-0,Resignation,Dearborn Brewing Chess Club,10+10,29,,,,
+2023-02-14,Greg M,Shane J,0-1,Resignation,Dearborn Brewing Chess Club,10+10,12,,,,
+2023-02-14,Greg M,Shane J,1-0,Other,Dearborn Brewing Chess Club,10+10,22,,,,"Left King in check, more than 2 moves elapsed"
+2023-02-14,Jacob D,Shane J,0-1,Checkmate,Dearborn Brewing Chess Club,10+5,21,,,,
+2023-02-14,Shane J,John C,1-0,Checkmate,Dearborn Brewing Chess Club,10+3,17,,,,
+2023-02-14,Shane J,Jacob D,1/2-1/2,Agreement,Dearborn Brewing Chess Club,10+5,42,,,,

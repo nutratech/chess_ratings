@@ -1,4 +1,4 @@
-Date,White,Black,Result,Outcome,Location,Time,# of moves,Opening,Variant,Analysis,Notes
-2023-01-01,shane j,berto z,Black,Resignation,Royal Oak (Methodist Church),15+10,37,B37,,,
-2023-01-01,berto z,shane j,Black,Resignation,Royal Oak (Methodist Church),,,B37,,,
-2023-01-01,shane j,berto z,Draw,Agreement,Royal Oak (Methodist Church),15+10,,,,,
+Date,White,Black,Score,Termination,Location,Time,# moves,Opening,Variant,Analysis,Notes
+2023-01-01,shane j,berto z,0-1,Resignation,Royal Oak (Methodist Church),15+10,37,B37,,,
+2023-01-01,berto z,shane j,0-1,Resignation,Royal Oak (Methodist Church),,,B37,,,
+2023-01-01,shane j,berto z,1/2-1/2,Agreement,Royal Oak (Methodist Church),15+10,,,,,

@@ -14,8 +14,8 @@ import asciichartpy  # pylint: disable=import-error
 
 from chessdet import (
     CLI_CONFIG,
-    DICT_OUTCOME_TO_SCORE,
-    ENUM_OUTCOMES,
+    ENUM_SCORES,
+    ENUM_TERMINATION,
     ENUM_VARIANTS,
     STANDARD,
     timecontrol,
@@ -28,6 +28,7 @@ CLUB_DICT = {
     "Oakland County (Methodist Church, Waterford)": "Oak County",
     "Oak Park (Community Center)": "Oak Park",
     "Port Huron (Palmer Park Rec Center)": "Port Huron",
+    "Dearborn Brewing Chess Club": "Dearborn Brew",
 }
 
 
@@ -73,16 +74,15 @@ class Game:
         self.username_white = row["white"]
         self.username_black = row["black"]
 
-        self.result = row["result"]
-        self.score = DICT_OUTCOME_TO_SCORE[self.result]
-        self.outcome = row["outcome"]
+        self.score = row["score"]
+        self.termination = row["termination"]
 
         self.location = Club(row["location"])
 
         # Optional fields
         self.variant = row["variant"] or STANDARD
         self.time_control = row["time"]
-        self.num_moves = int(row["# of moves"] or -1)
+        self.num_moves = int(row["# moves"] or -1)
         self.opening = row["opening"]
         self.url_analysis = row["analysis"]
         self.notes = row["notes"]
@@ -127,16 +127,22 @@ class Game:
         self.validate_username(self.username_white)
         self.validate_username(self.username_black)
 
-        # Game outcomes
-        if self.outcome not in ENUM_OUTCOMES:
+        # Game score
+        if self.score not in ENUM_SCORES:
             self.validation_error(
-                f"Invalid outcome: '{self.outcome}', must be in '{ENUM_OUTCOMES}'"
+                f"Invalid score: '{self.score}', must be in {ENUM_SCORES}"
+            )
+
+        # Game outcomes
+        if self.termination not in ENUM_TERMINATION:
+            self.validation_error(
+                f"Invalid outcome: '{self.termination}', must be in {ENUM_TERMINATION}"
             )
 
         # Variant
         if self.variant not in ENUM_VARIANTS:
             self.validation_error(
-                f"Invalid variant: '{self.result}', must be in '{ENUM_VARIANTS}'"
+                f"Invalid variant: '{self.variant}', must be in {ENUM_VARIANTS}"
             )
 
 

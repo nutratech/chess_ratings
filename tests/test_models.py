@@ -58,11 +58,11 @@ def test_Game_validate_fields() -> None:
             "date": "2023-01-01",
             "white": "shane j",
             "black": "berto z",
-            "result": "Black",
-            "outcome": "Resignation",
+            "score": "0-1",
+            "termination": "Resignation",
             "location": "Royal Oak (Methodist Church)",
             "time": "15+10",
-            "# of moves": "37",
+            "# moves": "37",
             "opening": "B37",
             "variant": str(),
             "analysis": str(),
@@ -70,15 +70,15 @@ def test_Game_validate_fields() -> None:
         }
 
     # Result (not for coverage, just code sanity)
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["result"] = "INVALID_RESULT"
+        row["score"] = "INVALID_SCORE"
         Game(row)
 
     # Outcome
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["outcome"] = "INVALID_OUTCOME"
+        row["termination"] = "INVALID_TERMINATION"
         Game(row)
 
     # Variant

@@ -31,26 +31,21 @@ BUFFER_HT = shutil.get_terminal_size()[1]
 # Location on disk to cache CSV file
 CSV_GAMES_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "games.csv")
 
-# Dict
-
-DICT_OUTCOME_TO_SCORE = {
-    "White": "1-0",
-    "Black": "0-1",
-    "Draw": "½-½",
-}
-
 # Enum
 STANDARD = "Standard"
 
-WHITE = "White"
-BLACK = "Black"
-DRAW = "Draw"
+WHITE = "1-0"
+BLACK = "0-1"
+DRAW = "1/2-1/2"
 
-ENUM_OUTCOMES = {
+ENUM_SCORES = {WHITE, BLACK, DRAW}
+
+ENUM_TERMINATION = {
     # Win / Loss
     "Checkmate",
     "Resignation",
     "Expired time",
+    "Other",
     # Draw
     "Agreement",
     "Repetition",
