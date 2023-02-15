@@ -68,11 +68,15 @@ class Game:
         - FIXME: use timecontrol.py: calculate different ratings: blitz/rapid/classical
     """
 
-    def __init__(self, row: Dict[str, str]) -> None:
+    def __init__(  # type: ignore
+        self, row: Dict[str, str], player_white, player_black
+    ) -> None:
         self.date = datetime.strptime(row["Date"], "%Y-%m-%d")
 
         self.username_white = row["White"]
         self.username_black = row["Black"]
+        self.ratings_white = [player_white.ratings[-1]]
+        self.ratings_black = [player_black.ratings[-1]]
 
         self.score = row["Score"]
         self.termination = row["Termination"]
