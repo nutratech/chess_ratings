@@ -102,8 +102,8 @@ def func_rank(
             p.str_wins_draws_losses(),
             round(max(x.mu for x in p.ratings)),
             p.avg_opponent(),
-            p.best_win(),
-            p.best_win(mode="draws"),
+            p.best_result(mode="wins"),
+            p.best_result(mode="draws"),
             p.home_club(),
         )
         for p in players.values()

@@ -21,9 +21,9 @@ from chessdet import (
     timecontrol,
 )
 from chessdet.glicko2 import glicko2
+from chessdet.timecontrol import TIME_CONTROL_CORRESPONDENCE
 
 CLUB_DICT = {
-    # "": "",
     "Royal Oak (Methodist Church)": "Royal Oak",
     "Oakland County (Methodist Church, Waterford)": "Oak County",
     "Oak Park (Community Center)": "Oak Park",
@@ -79,29 +79,25 @@ class Game:
 
         self.location = Club(row["location"])
 
+        # Compute time control
+        self.time_control = row["time"]
+        self.base_time, self.increment = -1, -1
+        self.days_per_move = -1
+        self.category = str()
+        self.parse_time_control()
+
         # Optional fields
         self.variant = row["variant"] or STANDARD
-        self.time_control = row["time"]
         self.num_moves = int(row["# moves"] or -1)
         self.opening = row["opening"]
         self.url_analysis = row["analysis"]
         self.notes = row["notes"]
 
-        # Compute time control
-        if self.time_control:
-            self.base_time = int(self.time_control.split("+")[0]) * 60
-            self.increment = int(self.time_control.split("+")[1])
-            # Assign category
-            self.category = timecontrol.game_type(self.base_time, self.increment)
-        else:
-            # NOTE: defaults to Classical
-            self.category = timecontrol.game_type(30 * 60, 20)
+        if CLI_CONFIG.debug:
+            print(self)
 
         # Validation
         self.validate_fields()
-
-        if CLI_CONFIG.debug:
-            print(self)
 
     def __str__(self) -> str:
         return (
@@ -109,6 +105,23 @@ class Game:
             f"{self.score} "
             f"{self.username_white} vs. {self.username_black}"
         )
+
+    def parse_time_control(self) -> None:
+        """Decide base_time and increment, or correspondence time length"""
+
+        if "+" in self.time_control:
+            self.base_time = int(self.time_control.split("+")[0])
+            self.increment = int(self.time_control.split("+")[1])
+            # Assign category
+            self.category = timecontrol.game_type(self.base_time, self.increment)
+        elif "d" in self.time_control:
+            self.days_per_move = int(self.time_control.split("d")[0])
+            self.category = TIME_CONTROL_CORRESPONDENCE[0]
+        else:
+            self.validation_error(
+                f"Invalid time control, must contain '+' or 'd', "
+                f"got: '{self.time_control}'"
+            )
 
     def validation_error(self, err_msg: str) -> None:
         """Raises a value error with err_msg and printing out the Game().__str__"""
@@ -243,14 +256,14 @@ class Player:
 
         return round(_avg_opponent)
 
-    def best_win(self, mode: str = "wins") -> Union[None, int]:
+    def best_result(self, mode: str = "wins") -> Union[None, int]:
         """Returns best win"""
         try:
-            _best_win = max(self.opponent_ratings[mode])
+            _best_result = max(self.opponent_ratings[mode])
         except ValueError:
             return None
 
-        return round(_best_win)
+        return round(_best_result)
 
     def graph_ratings(
         self, graph_width_limit: int = 50, graph_height: int = 12

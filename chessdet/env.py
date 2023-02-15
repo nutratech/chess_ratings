@@ -18,12 +18,10 @@ CHESS_DET_GOOGLE_SHEET_GAMES_GID = int(os.environ["CHESS_DET_GOOGLE_SHEET_GAMES_
 
 def _url(gid: int) -> str:
     """Hard-coded URL values pointing to our sheet"""
-
     return (
-        "https://docs.google.com/spreadsheet/ccc"
-        f"?key={CHESS_DET_GOOGLE_SHEET_KEY}"
+        f"https://docs.google.com/spreadsheets/d/{CHESS_DET_GOOGLE_SHEET_KEY}/export"
+        "?format=csv"
         f"&gid={gid}"
-        "&output=csv"
     )
 
 
