@@ -9,7 +9,7 @@ from typing import Dict, List, Set, Tuple
 
 from tabulate import tabulate
 
-from chessdet import BLACK, CSV_GAMES_FILE_PATH, STANDARD, WHITE
+from chessdet import BLACK, CSV_GAMES_FILE_PATH, STANDARD, WHITE, ENUM_TIME_CONTROLS
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import build_csv_reader
@@ -27,10 +27,12 @@ def update_players_ratings(
         #   - Store on games list, not root player object?
         #   - Should I aggregate all games or use a dict by variant & time control?
         _new_rating_player1, _new_rating_player2 = glicko.rate_1vs1(
-            player1.rating, player2.rating, drawn=drawn
+            player1.rating(game.variant, game.category),
+            player2.rating(game.variant, game.category),
+            drawn=drawn,
         )
-        player1.ratings.append(_new_rating_player1)
-        player2.ratings.append(_new_rating_player2)
+        player1.ratings[game.variant][game.category].append(_new_rating_player1)
+        player2.ratings[game.variant][game.category].append(_new_rating_player2)
 
     # Create the rating engine
     glicko = glicko2.Glicko2()
@@ -76,14 +78,16 @@ def process_csv(
         update_players_ratings(player_white, player_black, game)
 
         # Add games and club
-        player_white.games.append(game)
-        player_black.games.append(game)
+        player_white.games[game.variant][game.category].append(game)
+        player_black.games[game.variant][game.category].append(game)
         player_white.add_club(game.location.name)
         player_black.add_club(game.location.name)
 
     # Sort players by ratings
     sorted_players = sorted(
-        players.values(), key=lambda x: float(x.rating.mu), reverse=True
+        players.values(),
+        key=lambda x: float(x.rating(variant=STANDARD, category=ENUM_TIME_CONTROLS).mu),
+        reverse=True,
     )
     players = {p.username: p for p in sorted_players}
 

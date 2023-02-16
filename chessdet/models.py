@@ -78,8 +78,6 @@ class Game:
 
         self.username_white = row["White"]
         self.username_black = row["Black"]
-        self.ratings_white = [player_white.ratings[-1]]
-        self.ratings_black = [player_black.ratings[-1]]
 
         self.score = row["Score"]
         self.termination = row["Termination"]
@@ -105,6 +103,11 @@ class Game:
 
         # Validation
         self.validate_fields()
+
+        # Pull ratings
+
+        self.ratings_white = [player_white.ratings[self.variant][self.category][-1]]
+        self.ratings_black = [player_black.ratings[self.variant][self.category][-1]]
 
     def __str__(self) -> str:
         return (
@@ -189,27 +192,26 @@ class Player:
 
         # NOTE: separate scripts doubles & singles, it would aggregate both (is okay?)
         # Used to decide home club
-        # self.club_appearances: Dict[str, int] = {}
+        self.club_appearances: Dict[str, int] = {}
 
         # WIP section
         self.games: Dict[str, Dict[str, List[Game]]] = {
             v: {t: [] for t in TIME_CONTROLS} for v in VARIANTS
         }
         self.ratings: Dict[str, Dict[str, List[glicko2.Rating]]] = {
-            v: {t: [] for t in TIME_CONTROLS} for v in VARIANTS
+            v: {t: [glicko2.Rating()] for t in TIME_CONTROLS} for v in VARIANTS
         }
 
     def __str__(self) -> str:
         # NOTE: return this as a tuple, and tabulate it (rather than format as string)?
         return f"{self.username} [{self.str_rating()}]"
 
-    @property
-    def rating(self) -> glicko2.Rating:
+    def rating(self, variant: str, category: Union[str, Set[str]]) -> glicko2.Rating:
         """Gets the rating"""
         # FIXME: a lot of these properties would need to support variant != "STANDARD"
         # TODO: add support for separate rating_white and rating_black properties
         glicko = glicko2.Glicko2()
-        _rating = self.ratings[-1]
+        _rating = self.ratings[variant][category][-1]
 
         return glicko.create_rating(mu=_rating.mu, phi=_rating.phi, sigma=_rating.sigma)
 
