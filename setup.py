@@ -54,7 +54,7 @@ setup(
     author_email=__email__,
     classifiers=CLASSIFIERS,
     install_requires=REQUIREMENTS,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     zip_safe=False,
     packages=find_packages(exclude=["tests", "chessdet.docs"]),
     include_package_data=True,

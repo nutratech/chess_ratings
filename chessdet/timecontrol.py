@@ -10,9 +10,8 @@ TIME_CONTROL_ULTRA_BULLET = ("UltraBullet", 30)
 TIME_CONTROL_BULLET = ("Bullet", 180)
 TIME_CONTROL_BLITZ = ("Blitz", 480)
 TIME_CONTROL_RAPID = ("Rapid", 1500)
-TIME_CONTROL_CLASSICAL = ("Classical", 8400)
-# TODO: should classical be set to the highest? Is correspondence something else?
-TIME_CONTROL_CORRESPONDENCE = ("Correspondence", math.inf)
+TIME_CONTROL_CLASSICAL = ("Classical", math.inf)
+TIME_CONTROL_CORRESPONDENCE = ("Correspondence", -1)
 
 TIME_CONTROLS = [
     TIME_CONTROL_ULTRA_BULLET,
@@ -28,14 +27,19 @@ def game_type(base_time: int, increment: int) -> str:
     Return the type of game based on base time and increment formula.
     (See: https://lichess.org/faq#time-controls)
 
-    :param base_time: Starting time in SECONDS.
+    :param base_time: Starting time in MINUTES.
     :param increment: Increment in SECONDS.
     """
 
-    game_duration = base_time + 40 * increment
+    game_duration = base_time * 60 + increment * 40
 
-    for _game_type, max_time in TIME_CONTROLS:
-        if game_duration <= max_time:
-            return _game_type
-
-    return TIME_CONTROL_CORRESPONDENCE[0]
+    if game_duration < TIME_CONTROL_ULTRA_BULLET[1]:
+        return TIME_CONTROL_ULTRA_BULLET[0]
+    if game_duration < TIME_CONTROL_BULLET[1]:
+        return TIME_CONTROL_BULLET[0]
+    if game_duration < TIME_CONTROL_BLITZ[1]:
+        return TIME_CONTROL_BLITZ[0]
+    if game_duration < TIME_CONTROL_RAPID[1]:
+        return TIME_CONTROL_RAPID[0]
+        #  else: game_duration < TIME_CONTROL_CLASSICAL[1]:
+    return TIME_CONTROL_CLASSICAL[0]

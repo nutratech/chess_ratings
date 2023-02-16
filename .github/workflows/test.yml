@@ -44,4 +44,4 @@ jobs:
         run: |
           make install
           source .env
-          cr rate -mg
+          cr rank -mg

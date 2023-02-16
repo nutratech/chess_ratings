@@ -7,13 +7,14 @@ Created on Fri Feb 10 12:18:04 2023
 """
 import argparse
 import time
-from typing import List, Union
-from urllib.error import HTTPError, URLError
+from typing import Any, List, Tuple, Union
+from urllib.error import URLError
 
 import argcomplete
+import requests
 
 from chessdet import CLI_CONFIG, __email__, __title__, __url__, __version__
-from chessdet.argparser.funcs import parser_func_download, parser_func_rate
+from chessdet.argparser import build_subcommands
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -27,38 +28,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
 
     arg_parser.add_argument(
-        "-d", dest="debug", action="store_true", help="Enable detailed error messages"
+        "-d", dest="debug", action="store_true", help="enable verbose logging (debug)"
     )
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Subparsers
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    subparsers = arg_parser.add_subparsers(title=f"{__title__} subcommands")
-
-    # Download sub-parser
-    subparser_download = subparsers.add_parser(
-        "fetch", help="Download the latest Sheet from Google"
-    )
-    subparser_download.set_defaults(func=parser_func_download)
-
-    # Rate sub-parser
-    subparser_rate = subparsers.add_parser(
-        "rate", help="Process CSV, output ratings or player detail"
-    )
-    subparser_rate.add_argument(
-        "-s",
-        dest="skip_dl",
-        action="store_true",
-        help="Skip sheet download, use cached",
-    )
-    subparser_rate.add_argument(
-        "-m", "--matches", action="store_true", help="include fairest match ups"
-    )
-    subparser_rate.add_argument(
-        "-g", "--graph", action="store_true", help="include rating history charts"
-    )
-    subparser_rate.set_defaults(func=parser_func_rate)
+    build_subcommands(arg_parser)
 
     return arg_parser
 
@@ -80,12 +54,12 @@ def main(args: Union[None, List[str]] = None) -> int:
             return arg_parser.parse_args()
         return arg_parser.parse_args(args=args)
 
-    def func(parser: argparse.Namespace) -> tuple:
+    def func(parser: argparse.Namespace) -> Tuple[int, Any]:
         """Executes a function for a given argument call to the parser"""
         if hasattr(parser, "func"):
             # Print help for nested commands
             if parser.func.__name__ == "print_help":
-                return 0, parser.func()
+                return 0, parser.func()  # pragma: no cover
 
             # Collect non-default args
             args_dict = dict(vars(parser))
@@ -108,18 +82,20 @@ def main(args: Union[None, List[str]] = None) -> int:
 
     # Try to run the function
     exit_code = 1
+    conn_errs = (requests.exceptions.ConnectionError, requests.ReadTimeout, URLError)
+
     try:
         exit_code, *_results = func(_parser)
-    except HTTPError as http_error:
-        err_msg = f"{http_error.code}: {repr(http_error)}"
+    except requests.exceptions.HTTPError as http_error:
+        err_msg = f"{http_error.response.status_code}: {repr(http_error)}"
         print("Server response error, try again: " + err_msg)
         if CLI_CONFIG.debug:
             raise
-    except URLError as url_error:
-        print("Connection error, check your internet: " + repr(url_error.reason))
+    except conn_errs as conn_url_error:  # pragma: no cover
+        print("Connection error, check your internet: " + repr(conn_url_error))
         if CLI_CONFIG.debug:
             raise
-    except Exception as exception:  # pylint: disable=broad-except
+    except Exception as exception:  # pragma: no cover  # pylint: disable=broad-except
         print("Unforeseen error, run with -d for more info: " + repr(exception))
         print(f"You can open an issue here: {__url__}")
         print(f"Or send me an email with the debug output: {__email__}")
