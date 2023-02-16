@@ -4,14 +4,12 @@ Created on Fri Feb 10 13:37:46 2023
 
 @author: shane
 """
-import argparse
 import math
 from typing import Dict, List, Set, Tuple
 
 from tabulate import tabulate
 
 from chessdet import BLACK, CSV_GAMES_FILE_PATH, WHITE
-from chessdet.drawprobs import P_draw
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import build_csv_reader
@@ -51,12 +49,12 @@ def update_players_ratings(players: Dict[str, Player], game: Game) -> None:
     player_black = get_or_create_player_by_name(players, game.username_black)
 
     # Run the helper methods
-    if game.result == WHITE:
+    if game.score == WHITE:
         do_game(player_white, player_black)
-    elif game.result == BLACK:
+    elif game.score == BLACK:
         do_game(player_black, player_white)
     else:
-        # NOTE: already validated in: self.score = DICT_OUTCOME_TO_SCORE[self.result]
+        # NOTE: already validated with ENUM_SCORES and self.validation_error()
         do_game(player_white, player_black, drawn=True)
 
 
@@ -72,7 +70,6 @@ def process_csv(
 
     # Read CSV
     reader = build_csv_reader(csv_path)
-
     for row in reader:
         game = Game(row)
         games.append(game)
@@ -90,15 +87,14 @@ def process_csv(
     return games, players, clubs
 
 
-def func_rate(
-    args: argparse.Namespace,
+def func_rank(
     games: List[Game],
     players: Dict[str, Player],
     clubs: List[Club],
+    extended_titles: bool = False,
 ) -> None:
-    """Rate function used by rate sub-parser"""
+    """Rank function used by rank sub-parser"""
 
-    # Print the rankings table
     table_series_players = [
         (
             p.username,
@@ -106,15 +102,16 @@ def func_rate(
             p.str_wins_draws_losses(),
             round(max(x.mu for x in p.ratings)),
             p.avg_opponent(),
-            p.best_win(),
-            p.best_win(mode="draws"),
+            p.best_result(mode="wins"),
+            p.best_result(mode="draws"),
             p.home_club(),
         )
         for p in players.values()
     ]
-    _table = tabulate(
-        table_series_players,
-        headers=[
+
+    # Condensed titles for command line, extended ones for sheet (formatting issue)
+    if extended_titles:
+        headers = [
             "Username",
             "Glicko 2",
             "Record",
@@ -123,34 +120,33 @@ def func_rate(
             "Best W",
             "Best D",
             "Club",
-        ],
-    )
+        ]
+    else:
+        headers = [
+            "\nUsername",
+            "\nGlicko 2",
+            "\nRecord",
+            "\nTop",
+            "Avg\nopp",
+            "Best\nWin",
+            "Best\nDraw",
+            "\nClub",
+        ]
+
+    # Print the rankings table
+    _table = tabulate(table_series_players, headers)
     print_title(
         f"Rankings ({len(games)} games, {len(players)} players, {len(clubs)} clubs)"
     )
     print(_table)
 
-    # Optionally print match ups
-    if args.matches:
-        func_match_ups(players=players)
-
-    # Optionally print the rating progress charts
-    if args.graph:
-        print_title("Rating progress charts")
-        for p in players.values():  # pylint: disable=invalid-name
-            print()
-            print(p)
-            p.graph_ratings()
-
 
 def func_match_ups(
     players: Dict[str, Player],
-) -> Tuple[int, List[Tuple[str, str, int, int, float, float]]]:
-    """Print match ups (used by rate sub-parser)"""
+) -> Tuple[int, List[Tuple[str, str, int, int, float]]]:
+    """Print match ups (used by rank sub-parser)"""
 
-    def match_up(
-        player1: Player, player2: Player
-    ) -> Tuple[str, str, int, int, float, float]:
+    def match_up(player1: Player, player2: Player) -> Tuple[str, str, int, int, float]:
         """Yields an individual match up for the table data"""
         glicko = glicko2.Glicko2()
 
@@ -171,20 +167,12 @@ def func_match_ups(
             ),
             2,
         )
-        gamma = glicko.quality_1vs1(
-            glicko.scale_down(player1.rating),
-            glicko.scale_down(player2.rating),
-        )
-        draw_probability = round(
-            gamma * P_draw(player1.rating.mu, player2.rating.mu), 2
-        )
         return (
             player1.username,
             player2.username,
             delta_rating,
             rd_avg,
             expected_score,
-            draw_probability,
         )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,19 +183,23 @@ def func_match_ups(
     match_ups = []
     n_players = len(players)
 
-    # pylint: disable=invalid-name,consider-using-enumerate
-    for i1 in range(len(players_list)):
+    # pylint: disable=invalid-name
+    for i1 in range(n_players):
         p1 = players_list[i1]
-        for i2 in range(i1 + 1, len(players)):
+        for i2 in range(i1 + 1, n_players):
             p2 = players_list[i2]
             match_ups.append(match_up(p1, p2))
 
+    # Sort
+    match_ups.sort(key=lambda x: x[-1], reverse=False)
+
+    # Print off top matches
     _n_pairs = math.comb(n_players, 2)
     _n_top = min(100, _n_pairs)
     print_title(f"Match ups (top {_n_top}, {n_players}C2={_n_pairs} possible)")
     _table = tabulate(
         match_ups,
-        headers=["Player 1", "Player 2", "ΔR", "RD", "E", "P(d)"],
+        headers=["Player 1", "Player 2", "ΔR", "RD", "E"],
     )
     print(_table)
 

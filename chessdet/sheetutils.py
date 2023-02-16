@@ -8,7 +8,8 @@ import csv
 
 import requests
 
-from chessdet import CSV_GAMES_FILE_PATH, CSV_GAMES_URL
+from chessdet import CLI_CONFIG, CSV_GAMES_FILE_PATH
+from chessdet.env import CSV_GAMES_URL
 
 
 def get_google_sheet(url: str = CSV_GAMES_URL) -> bytes:
@@ -39,6 +40,8 @@ def cache_csv_games_file(
 
 def build_csv_reader(csv_file_path: str = CSV_GAMES_FILE_PATH) -> csv.DictReader:
     """Returns a csv.reader() object"""
+    if CLI_CONFIG.debug:
+        print(f"Using csv_file_path={csv_file_path}")
 
     # pylint: disable=consider-using-with
     reader = csv.DictReader(open(csv_file_path, encoding="utf-8"))

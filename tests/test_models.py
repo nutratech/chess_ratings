@@ -50,7 +50,7 @@ def test_Game() -> None:
         print(game)
 
 
-def test_Game_validate_fields() -> None:
+def test_Game_validate_fields_and_parse_time_control() -> None:
     """Test field validation on Game entity"""
 
     def _default_row_builder() -> Dict[str, str]:
@@ -58,11 +58,11 @@ def test_Game_validate_fields() -> None:
             "date": "2023-01-01",
             "white": "shane j",
             "black": "berto z",
-            "result": "Black",
-            "outcome": "Resignation",
+            "score": "0-1",
+            "termination": "Resignation",
             "location": "Royal Oak (Methodist Church)",
             "time": "15+10",
-            "# of moves": "37",
+            "# moves": "37",
             "opening": "B37",
             "variant": str(),
             "analysis": str(),
@@ -70,15 +70,15 @@ def test_Game_validate_fields() -> None:
         }
 
     # Result (not for coverage, just code sanity)
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["result"] = "INVALID_RESULT"
+        row["score"] = "INVALID_SCORE"
         Game(row)
 
     # Outcome
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["outcome"] = "INVALID_OUTCOME"
+        row["termination"] = "INVALID_TERMINATION"
         Game(row)
 
     # Variant
@@ -91,6 +91,12 @@ def test_Game_validate_fields() -> None:
     with pytest.raises(ValueError):
         row = _default_row_builder()
         row["white"] = ""
+        Game(row)
+
+    # Time control (invalid one)
+    with pytest.raises(ValueError):
+        row = _default_row_builder()
+        row["time"] = "7f"
         Game(row)
 
 
@@ -110,16 +116,16 @@ def test_Player() -> None:
     # Record W/D/L
     assert "+0 =0 -0" == player.str_wins_draws_losses()
 
-    # avg_opponent(), best_win()
+    # avg_opponent(), best_result()
     player.opponent_ratings["losses"] = [1500]
     assert 1500 == player.avg_opponent()
-    assert None is player.best_win()
+    assert None is player.best_result(mode="wins")
 
     player.opponent_ratings["draws"] = [1500]
-    assert 1500 == player.best_win(mode="draws")
+    assert 1500 == player.best_result(mode="draws")
 
     player.opponent_ratings["wins"] = [1500]
-    assert 1500 == player.best_win()
+    assert 1500 == player.best_result(mode="wins")
 
     # graph_ratings()
     player.ratings.append(glicko2.Glicko2().create_rating(mu=1650))

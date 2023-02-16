@@ -1,2 +1,2 @@
-include chessdet/data/.gitkeep
-
+include chessdet/.env
+graft chessdet/data/
