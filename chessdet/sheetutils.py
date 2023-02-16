@@ -5,7 +5,6 @@ Created on Wed Feb  8 15:23:06 2023
 @author: shane
 """
 import csv
-import sys
 
 import requests
 
