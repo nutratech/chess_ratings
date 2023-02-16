@@ -9,7 +9,7 @@ from typing import Dict, List, Set, Tuple
 
 from tabulate import tabulate
 
-from chessdet import BLACK, CSV_GAMES_FILE_PATH, STANDARD, WHITE, ENUM_TIME_CONTROLS
+from chessdet import BLACK, CSV_GAMES_FILE_PATH, ENUM_TIME_CONTROLS, STANDARD, WHITE
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from chessdet.sheetutils import build_csv_reader
@@ -86,7 +86,7 @@ def process_csv(
     # Sort players by ratings
     sorted_players = sorted(
         players.values(),
-        key=lambda x: float(x.rating(variant=STANDARD, category=ENUM_TIME_CONTROLS).mu),
+        key=lambda x: float(x.rating(variant=STANDARD, category="Rapid").mu),
         reverse=True,
     )
     players = {p.username: p for p in sorted_players}
@@ -106,11 +106,11 @@ def func_rank(
         (
             p.username,
             p.str_rating(),
-            p.str_wins_draws_losses(variant=STANDARD, time="all"),
-            round(max(x.mu for x in p.ratings)),
-            p.avg_opponent(variant=STANDARD, score="all", time="all"),
-            p.best_result(mode="wins"),
-            p.best_result(mode="draws"),
+            # p.str_wins_draws_losses(variant=STANDARD, time="all"),
+            round(max(x.mu for x in p.ratings[STANDARD]["Rapid"])),
+            # p.avg_opponent(variant=STANDARD, score="all", time="all"),
+            # p.best_result(mode="wins"),
+            # p.best_result(mode="draws"),
             p.home_club(),
         )
         for p in players.values()
@@ -132,11 +132,11 @@ def func_rank(
         headers = [
             "\nUsername",
             "\nGlicko 2",
-            "\nRecord",
+            # "\nRecord",
             "\nTop",
-            "Avg\nopp",
-            "Best\nWin",
-            "Best\nDraw",
+            # "Avg\nopp",
+            # "Best\nWin",
+            # "Best\nDraw",
             "\nClub",
         ]
 
