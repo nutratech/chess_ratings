@@ -206,7 +206,7 @@ class Player:
         # NOTE: return this as a tuple, and tabulate it (rather than format as string)?
         return f"{self.username} [{self.str_rating()}]"
 
-    def rating(self, variant: str, category: Union[str, Set[str]]) -> glicko2.Rating:
+    def rating(self, variant: str, category: str) -> glicko2.Rating:
         """Gets the rating"""
         # FIXME: a lot of these properties would need to support variant != "STANDARD"
         # TODO: add support for separate rating_white and rating_black properties
@@ -241,13 +241,14 @@ class Player:
 
     def str_rating(self) -> str:
         """Returns a friendly string for a rating, e.g. 1500 ± 300"""
-        _rating = self.rating
+
+        _rating = self.rating(STANDARD, "Rapid")
         _mu = round(_rating.mu)
         _196_phi = int(round(_rating.phi * 1.96, -1))  # Round to 10s
 
         return f"{_mu} ± {_196_phi}"
 
-    def str_wins_draws_losses(self) -> str:
+    def str_wins_draws_losses(self, variant: str, category: str) -> str:
         """Returns e.g. 5-2"""
 
         n_wins = len(self.opponent_ratings["wins"])
@@ -259,7 +260,7 @@ class Player:
     def avg_opponent(self, variant: str, score: str, category: str) -> int:
         """Returns average opponent"""
 
-        sum_ratings = sum(x[variant][category] for x in self.games)
+        sum_ratings = sum(x[variant][category].my_rating.mu for x in self.games)
         n_games = sum(len(x[variant][category]) for x in self.games)
 
         _avg_opponent = sum(
