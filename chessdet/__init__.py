@@ -68,7 +68,7 @@ VARIANTS = [
     "Armageddon",
     "Chess960",
     "Atomic",
-    "Crazy house",
+    "Bug house",
     "Three check",
     "King of the hill",
     "Racing kings",
