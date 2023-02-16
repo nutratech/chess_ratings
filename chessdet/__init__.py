@@ -11,7 +11,7 @@ import shutil
 
 # Package info
 __title__ = "cr"
-__version__ = "0.0.1.dev10"
+__version__ = "0.0.2.dev0"
 __author__ = "Shane J"
 __email__ = "chown_tee@proton.me"
 __license__ = "GPL v3"
