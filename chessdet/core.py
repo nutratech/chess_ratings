@@ -23,6 +23,9 @@ def update_players_ratings(
 
     def update_player_ratings(player1: Player, player2: Player, drawn: bool) -> None:
         """NOTE: player1 is winner by default, unless drawn (then it doesn't matter)"""
+        # TODO
+        #   - Store on games list, not root player object?
+        #   - Should I aggregate all games or use a dict by variant & time control?
         _new_rating_player1, _new_rating_player2 = glicko.rate_1vs1(
             player1.rating, player2.rating, drawn=drawn
         )

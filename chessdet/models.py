@@ -16,9 +16,12 @@ from chessdet import (
     CLI_CONFIG,
     ENUM_SCORES,
     ENUM_TERMINATION,
+    ENUM_TIME_CONTROLS,
     ENUM_VARIANTS,
     STANDARD,
     TIME_CONTROL_CORRESPONDENCE,
+    TIME_CONTROLS,
+    VARIANTS,
     timecontrol,
 )
 from chessdet.glicko2 import glicko2
@@ -176,20 +179,25 @@ class Player:
         self.username = username
 
         # NOTE: length of this is one longer than other arrays
-        self.ratings = [glicko2.Rating()]
+        # self.ratings = [glicko2.Rating()]
 
-        self.opponent_ratings: Dict[str, List[float]] = {
-            "wins": [],
-            "losses": [],
-            "draws": [],
-        }
+        # self.opponent_ratings: Dict[str, List[float]] = {
+        #     "wins": [],
+        #     "losses": [],
+        #     "draws": [],
+        # }
 
         # NOTE: separate scripts doubles & singles, it would aggregate both (is okay?)
         # Used to decide home club
-        self.club_appearances: Dict[str, int] = {}
+        # self.club_appearances: Dict[str, int] = {}
 
         # WIP section
-        self.games: List[Game] = []
+        self.games: Dict[str, Dict[str, List[Game]]] = {
+            v: {t: [] for t in TIME_CONTROLS} for v in VARIANTS
+        }
+        self.ratings: Dict[str, Dict[str, List[glicko2.Rating]]] = {
+            v: {t: [] for t in TIME_CONTROLS} for v in VARIANTS
+        }
 
     def __str__(self) -> str:
         # NOTE: return this as a tuple, and tabulate it (rather than format as string)?
@@ -249,7 +257,8 @@ class Player:
     def avg_opponent(self, variant: str, score: str, category: str) -> int:
         """Returns average opponent"""
 
-        sum_ratings = sum(x for x in self.games)
+        sum_ratings = sum(x[variant][category] for x in self.games)
+        n_games = sum(len(x[variant][category]) for x in self.games)
 
         _avg_opponent = sum(
             sum(self.opponent_ratings[_result])
