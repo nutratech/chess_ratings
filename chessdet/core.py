@@ -99,7 +99,7 @@ def func_rank(
         (
             p.username,
             p.str_rating(),
-            p.str_wins_draws_losses(),
+            p.str_wins_draws_losses(variant=STANDARD, time="all"),
             round(max(x.mu for x in p.ratings)),
             p.avg_opponent(variant=STANDARD, score="all", time="all"),
             p.best_result(mode="wins"),
