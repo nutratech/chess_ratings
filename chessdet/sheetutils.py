@@ -45,5 +45,4 @@ def build_csv_reader(csv_file_path: str = CSV_GAMES_FILE_PATH) -> csv.DictReader
 
     # pylint: disable=consider-using-with
     reader = csv.DictReader(open(csv_file_path, encoding="utf-8"))
-    reader.fieldnames = [field.strip().lower() for field in reader.fieldnames or []]
     return reader

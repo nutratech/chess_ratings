@@ -43,7 +43,6 @@ def test_Game() -> None:
 
     # pylint: disable=consider-using-with
     reader = csv.DictReader(open(TEST_CSV_GAMES_FILE_PATH, "r", encoding="utf-8"))
-    reader.fieldnames = [field.strip().lower() for field in reader.fieldnames or []]
 
     for row in reader:
         game = Game(row)
