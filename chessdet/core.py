@@ -194,7 +194,9 @@ def func_match_ups(
     match_ups.sort(key=lambda x: x[-1], reverse=False)
 
     # Print off top matches
-    _n_pairs = math.comb(n_players, 2)
+    _n_pairs = int(
+        math.gamma(n_players + 1) / (math.gamma(2 + 1) * math.gamma(n_players - 2 + 1))
+    )
     _n_top = min(100, _n_pairs)
     print_title(f"Match ups (top {_n_top}, {n_players}C2={_n_pairs} possible)")
     _table = tabulate(
