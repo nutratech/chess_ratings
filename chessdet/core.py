@@ -65,8 +65,8 @@ def process_csv(
     reader = build_csv_reader(csv_path)
     for row in reader:
         # Extract (or create) player_white & player_black from Players Dict
-        player_white = get_or_create_player_by_name(players, row["white"])
-        player_black = get_or_create_player_by_name(players, row["black"])
+        player_white = get_or_create_player_by_name(players, row["White"])
+        player_black = get_or_create_player_by_name(players, row["Black"])
 
         # Store game and club
         game = Game(row, player_white, player_black)
