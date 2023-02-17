@@ -18,10 +18,10 @@ from chessdet import (
     ENUM_TERMINATION,
     ENUM_VARIANTS,
     STANDARD,
+    TIME_CONTROL_CORRESPONDENCE,
     timecontrol,
 )
 from chessdet.glicko2 import glicko2
-from chessdet.timecontrol import TIME_CONTROL_CORRESPONDENCE
 
 CLUB_DICT = {
     "Royal Oak (Methodist Church)": "Royal Oak",
@@ -69,29 +69,29 @@ class Game:
     """
 
     def __init__(self, row: Dict[str, str]) -> None:
-        self.date = datetime.strptime(row["date"], "%Y-%m-%d")
+        self.date = datetime.strptime(row["Date"], "%Y-%m-%d")
 
-        self.username_white = row["white"]
-        self.username_black = row["black"]
+        self.username_white = row["White"]
+        self.username_black = row["Black"]
 
-        self.score = row["score"]
-        self.termination = row["termination"]
+        self.score = row["Score"]
+        self.termination = row["Termination"]
 
-        self.location = Club(row["location"])
+        self.location = Club(row["Location"])
 
         # Compute time control
-        self.time_control = row["time"]
+        self.time_control = row["Time"]
         self.base_time, self.increment = -1, -1
         self.days_per_move = -1
         self.category = str()
         self.parse_time_control()
 
         # Optional fields
-        self.variant = row["variant"] or STANDARD
+        self.variant = row["Variant"] or STANDARD
         self.num_moves = int(row["# moves"] or -1)
-        self.opening = row["opening"]
-        self.url_analysis = row["analysis"]
-        self.notes = row["notes"]
+        self.opening = row["Opening"]
+        self.url_analysis = row["Analysis"]
+        self.notes = row["Notes"]
 
         if CLI_CONFIG.debug:
             print(self)
@@ -227,10 +227,11 @@ class Player:
 
     def str_rating(self) -> str:
         """Returns a friendly string for a rating, e.g. 1500 ± 300"""
-        _rating = round(self.rating.mu)
-        _uncertainty = round(self.rating.phi * 1.96, -1)  # Round to 10s
+        _rating = self.rating
+        _mu = round(_rating.mu)
+        _196_phi = int(round(_rating.phi * 1.96, -1))  # Round to 10s
 
-        return f"{_rating} ± {int(_uncertainty)}"
+        return f"{_mu} ± {_196_phi}"
 
     def str_wins_draws_losses(self) -> str:
         """Returns e.g. 5-2"""
