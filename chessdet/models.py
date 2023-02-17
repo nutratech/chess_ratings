@@ -18,10 +18,10 @@ from chessdet import (
     ENUM_TERMINATION,
     ENUM_VARIANTS,
     STANDARD,
+    TIME_CONTROL_CORRESPONDENCE,
     timecontrol,
 )
 from chessdet.glicko2 import glicko2
-from chessdet.timecontrol import TIME_CONTROL_CORRESPONDENCE
 
 CLUB_DICT = {
     "Royal Oak (Methodist Church)": "Royal Oak",
@@ -227,10 +227,11 @@ class Player:
 
     def str_rating(self) -> str:
         """Returns a friendly string for a rating, e.g. 1500 ± 300"""
-        _rating = round(self.rating.mu)
-        _uncertainty = round(self.rating.phi * 1.96, -1)  # Round to 10s
+        _rating = self.rating
+        _mu = round(_rating.mu)
+        _196_phi = int(round(_rating.phi * 1.96, -1))  # Round to 10s
 
-        return f"{_rating} ± {int(_uncertainty)}"
+        return f"{_mu} ± {_196_phi}"
 
     def str_wins_draws_losses(self) -> str:
         """Returns e.g. 5-2"""

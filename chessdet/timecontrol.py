@@ -4,22 +4,14 @@ Created on Wed Feb  8 12:13:36 2023
 
 @author: shane
 """
-import math
 
-TIME_CONTROL_ULTRA_BULLET = ("UltraBullet", 30)
-TIME_CONTROL_BULLET = ("Bullet", 180)
-TIME_CONTROL_BLITZ = ("Blitz", 480)
-TIME_CONTROL_RAPID = ("Rapid", 1500)
-TIME_CONTROL_CLASSICAL = ("Classical", math.inf)
-TIME_CONTROL_CORRESPONDENCE = ("Correspondence", -1)
-
-TIME_CONTROLS = [
-    TIME_CONTROL_ULTRA_BULLET,
-    TIME_CONTROL_BULLET,
+from chessdet import (
     TIME_CONTROL_BLITZ,
-    TIME_CONTROL_RAPID,
+    TIME_CONTROL_BULLET,
     TIME_CONTROL_CLASSICAL,
-]
+    TIME_CONTROL_RAPID,
+    TIME_CONTROL_ULTRA_BULLET,
+)
 
 
 def game_type(base_time: int, increment: int) -> str:
