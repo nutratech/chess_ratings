@@ -6,6 +6,10 @@
   :target: https://github.com/nutratech/chess_ratings/actions/workflows/test.yml
   :alt: Test status unknown
 
+.. image:: https://github.com/nutratech/chess_ratings/actions/workflows/install-linux.yml/badge.svg
+  :target: https://github.com/nutratech/chess_ratings/actions/workflows/install-linux.yml
+  :alt: Install status unknown
+
 
 Link to the Google Sheet
 ########################

@@ -1,5 +1,5 @@
 ---
-name: test
+name: install-linux
 
 "on":
   push: {}
@@ -8,17 +8,21 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  python37:
     runs-on: ubuntu-latest
 
     env:
-      PYTHON_SPOOF_VENV: /home/runner/work/chess_ratings/chess_ratings/.venv/bin/python
+      PY_SYS_INTERPRETER: python3.7
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Setup Python 3.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.7"
 
       - name: Reload Cache / pip
         uses: actions/cache@v3
@@ -28,19 +32,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install requirements
-        run: PYTHON=${{ env.PYTHON_SPOOF_VENV }} make deps
-
-      - name: Lint
-        run: PYTHON=${{ env.PYTHON_SPOOF_VENV }} make lint
-
-      - name: Test
-        run: PYTHON=${{ env.PYTHON_SPOOF_VENV }} make test
-
-      - name: Verify all python files are annotated at top
-        run: make verify/py-annotated
+      - name: Install
+        run: make install
 
       - name: Basic CLI Integration Tests
         run: |
-          make install
+          cr -d fetch
           cr -d rank -smg

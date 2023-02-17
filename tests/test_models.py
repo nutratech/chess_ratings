@@ -31,7 +31,7 @@ def test_Club() -> None:
 
     # Test hash() operator (uniqueness)
     clubs.add(club)
-    clubs.add(club)
+    clubs.add(club)  # set uniqueness
     assert club in clubs
 
     # Test eq() operator
@@ -54,48 +54,48 @@ def test_Game_validate_fields_and_parse_time_control() -> None:
 
     def _default_row_builder() -> Dict[str, str]:
         return {
-            "date": "2023-01-01",
-            "white": "shane j",
-            "black": "berto z",
-            "score": "0-1",
-            "termination": "Resignation",
-            "location": "Royal Oak (Methodist Church)",
-            "time": "15+10",
+            "Date": "2023-01-01",
+            "White": "shane j",
+            "Black": "berto z",
+            "Score": "0-1",
+            "Termination": "Resignation",
+            "Location": "Royal Oak (Methodist Church)",
+            "Time": "15+10",
             "# moves": "37",
-            "opening": "B37",
-            "variant": str(),
-            "analysis": str(),
-            "notes": str(),
+            "Opening": "B37",
+            "Variant": str(),
+            "Analysis": str(),
+            "Notes": str(),
         }
 
     # Result (not for coverage, just code sanity)
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["score"] = "INVALID_SCORE"
+        row["Score"] = "INVALID_SCORE"
         Game(row)
 
     # Outcome
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["termination"] = "INVALID_TERMINATION"
+        row["Termination"] = "INVALID_TERMINATION"
         Game(row)
 
     # Variant
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["variant"] = "INVALID_VARIANT"
+        row["Variant"] = "INVALID_VARIANT"
         Game(row)
 
     # Usernames
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["white"] = ""
+        row["White"] = ""
         Game(row)
 
     # Time control (invalid one)
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["time"] = "7f"
+        row["Time"] = "7f"
         Game(row)
 
 

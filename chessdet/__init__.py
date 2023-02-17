@@ -44,7 +44,7 @@ ENUM_TERMINATION = {
     # Win / Loss
     "Checkmate",
     "Resignation",
-    "Expired time",
+    "Clock flag",
     "Other",
     # Draw
     "Agreement",
@@ -55,8 +55,7 @@ ENUM_TERMINATION = {
 }
 
 ENUM_VARIANTS = {
-    "",  # Standard
-    "Standard",
+    STANDARD,
     "Armageddon",
     "Chess960",
     "Atomic",
@@ -65,6 +64,9 @@ ENUM_VARIANTS = {
     "King of the hill",
     "Racing kings",
     "Horde",
+    # 4 player
+    "Head and hand",
+    "Bug house",
 }
 
 

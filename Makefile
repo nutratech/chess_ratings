@@ -15,7 +15,7 @@ _help:
 # TODO: OS-independent venv, e.g. .venv/Scripts/activate
 
 init:	## Initialize venv
-	/usr/bin/python3 -m venv .venv
+	$(PY_SYS_INTERPRETER) -m venv .venv
 	direnv allow || source .venv/bin/activate
 
 PYTHON ?= $(shell which python)
