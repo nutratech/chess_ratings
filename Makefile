@@ -67,13 +67,16 @@ clean:	## Clean up pycache/ and other left overs
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Install
+# Install, build
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PY_SYS_INTERPRETER ?= /usr/bin/python3
 
 install:	## Install into user space
 	$(PY_SYS_INTERPRETER) -m pip install .
+
+build: _venv	## Bundle a source distribution
+	$(PYTHON) setup.py sdist
 
 
 
