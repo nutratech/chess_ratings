@@ -204,13 +204,17 @@ class Player:
 
     def rating_max(self) -> Union[None, int]:
         """Personal best, ignore highly uncertain ratings"""
-        return max(
-            filter(
-                lambda x2: x2.phi < DEVIATION_PROVISIONAL, self.ratings  # type: ignore
-            ),
-            key=lambda x: x.mu,  # type: ignore
-            default=None,
-        )
+        try:
+            return round(
+                max(
+                    x.mu
+                    for x in filter(
+                        lambda y: y.phi < DEVIATION_PROVISIONAL, self.ratings
+                    )
+                )
+            )
+        except ValueError:
+            return None
 
     def add_club(self, club: str) -> None:
         """Adds a club tally to the club appearances dictionary"""
