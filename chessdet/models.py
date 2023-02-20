@@ -202,11 +202,11 @@ class Player:
 
         return glicko.create_rating(mu=_rating.mu, phi=_rating.phi, sigma=_rating.sigma)
 
-    def rating_max(self) -> Union[None, glicko2.Rating]:
+    def rating_max(self) -> Union[None, int]:
         """Personal best, ignore highly uncertain ratings"""
         return max(
             filter(
-                lambda x: x.phi < DEVIATION_PROVISIONAL, self.ratings  # type: ignore
+                lambda x2: x2.phi < DEVIATION_PROVISIONAL, self.ratings  # type: ignore
             ),
             key=lambda x: x.mu,  # type: ignore
             default=None,
@@ -253,9 +253,10 @@ class Player:
 
         return f"+{n_wins} ={n_draws} -{n_losses}"
 
-    def avg_opponent(self) -> Union[int, float]:
+    def avg_opponent(self) -> int:
         """Returns average opponent"""
 
+        # FIXME: filter if < DEVIATION_PROVISIONAL
         _avg_opponent = sum(
             sum(x.mu for x in self.opponent_ratings[_result])
             for _result in ["wins", "losses", "draws"]
@@ -265,17 +266,20 @@ class Player:
                 for _result in ["wins", "losses", "draws"]
             )
         )
-
         return round(_avg_opponent)
 
     def best_result(self, mode: str = "wins") -> Union[None, int]:
         """Returns best win"""
         try:
-            _best_result = max(x.mu for x in self.opponent_ratings[mode])
-        except ValueError:
+            return round(
+                max(
+                    x.mu
+                    for x in self.opponent_ratings[mode]
+                    if x.phi < DEVIATION_PROVISIONAL
+                )
+            )
+        except (ValueError, TypeError):
             return None
-
-        return round(_best_result)
 
     def graph_ratings(
         self, graph_width_limit: int = 50, graph_height: int = 12

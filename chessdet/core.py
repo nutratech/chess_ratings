@@ -100,7 +100,7 @@ def func_rank(
             p.username,
             p.str_rating(),
             p.str_wins_draws_losses(),
-            round(p.rating_max().mu) if p.rating_max() else None,  # type: ignore
+            p.rating_max(),
             p.avg_opponent(),
             p.best_result(mode="wins"),
             p.best_result(mode="draws"),

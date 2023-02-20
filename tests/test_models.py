@@ -119,22 +119,18 @@ def test_Player() -> None:
     # TODO: player.rating_max()
 
     # avg_opponent(), best_result()
-    player.opponent_ratings["losses"] = [glicko2.Rating()]
+    deviation_valid = DEVIATION_PROVISIONAL - 0.001
+    player.opponent_ratings["losses"] = [glicko2.Rating(phi=deviation_valid)]
+    player.opponent_ratings["draws"] = [glicko2.Rating()]
+    player.opponent_ratings["wins"] = [glicko2.Rating()]
     assert 1500 == player.avg_opponent()
     assert 1500 == player.best_result(mode="losses")
-    assert None is player.best_result(mode="draws")
-    assert None is player.best_result(mode="wins")
-
     # filter provisional ratings
-    player.opponent_ratings["draws"] = [glicko2.Rating()]
     assert None is player.best_result(mode="draws")
-    player.opponent_ratings["wins"] = [glicko2.Rating()]
     assert None is player.best_result(mode="wins")
 
     # only show wins for "certain" ratings
-    player.opponent_ratings["wins"] = [
-        glicko2.Rating(phi=DEVIATION_PROVISIONAL - 0.001)
-    ]
+    player.opponent_ratings["wins"] = [glicko2.Rating(phi=deviation_valid)]
     assert 1500 == player.best_result(mode="wins")
 
     # graph_ratings()
