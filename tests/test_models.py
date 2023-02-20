@@ -9,6 +9,7 @@ from typing import Dict
 
 import pytest
 
+from chessdet import DEVIATION_PROVISIONAL
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from tests import TEST_CSV_GAMES_FILE_PATH
@@ -115,15 +116,25 @@ def test_Player() -> None:
     # Record W/D/L
     assert "+0 =0 -0" == player.str_wins_draws_losses()
 
+    # TODO: player.rating_max()
+
     # avg_opponent(), best_result()
-    player.opponent_ratings["losses"] = [1500]
+    player.opponent_ratings["losses"] = [glicko2.Rating()]
     assert 1500 == player.avg_opponent()
+    assert 1500 == player.best_result(mode="losses")
+    assert None is player.best_result(mode="draws")
     assert None is player.best_result(mode="wins")
 
-    player.opponent_ratings["draws"] = [1500]
-    assert 1500 == player.best_result(mode="draws")
+    # filter provisional ratings
+    player.opponent_ratings["draws"] = [glicko2.Rating()]
+    assert None is player.best_result(mode="draws")
+    player.opponent_ratings["wins"] = [glicko2.Rating()]
+    assert None is player.best_result(mode="wins")
 
-    player.opponent_ratings["wins"] = [1500]
+    # only show wins for "certain" ratings
+    player.opponent_ratings["wins"] = [
+        glicko2.Rating(phi=DEVIATION_PROVISIONAL - 0.001)
+    ]
     assert 1500 == player.best_result(mode="wins")
 
     # graph_ratings()

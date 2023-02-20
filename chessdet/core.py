@@ -24,11 +24,11 @@ def update_players_ratings(players: Dict[str, Player], game: Game) -> None:
 
         # Add opponent ratings
         if drawn:
-            player1.opponent_ratings["draws"].append(player2.rating.mu)
-            player2.opponent_ratings["draws"].append(player1.rating.mu)
+            player1.opponent_ratings["draws"].append(player2.rating)
+            player2.opponent_ratings["draws"].append(player1.rating)
         else:
-            player1.opponent_ratings["wins"].append(player2.rating.mu)
-            player2.opponent_ratings["losses"].append(player1.rating.mu)
+            player1.opponent_ratings["wins"].append(player2.rating)
+            player2.opponent_ratings["losses"].append(player1.rating)
 
         # Add clubs
         player1.add_club(game.location.name)
@@ -100,7 +100,7 @@ def func_rank(
             p.username,
             p.str_rating(),
             p.str_wins_draws_losses(),
-            round(max(x.mu for x in p.ratings)),
+            round(p.rating_max().mu) if p.rating_max() else None,  # type: ignore
             p.avg_opponent(),
             p.best_result(mode="wins"),
             p.best_result(mode="draws"),

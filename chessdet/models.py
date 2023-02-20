@@ -14,6 +14,7 @@ import asciichartpy  # pylint: disable=import-error
 
 from chessdet import (
     CLI_CONFIG,
+    DEVIATION_PROVISIONAL,
     ENUM_SCORES,
     ENUM_TERMINATION,
     ENUM_VARIANTS,
@@ -174,7 +175,7 @@ class Player:
         # NOTE: length of this is one longer than other arrays
         self.ratings = [glicko2.Rating()]
 
-        self.opponent_ratings: Dict[str, List[float]] = {
+        self.opponent_ratings: Dict[str, List[glicko2.Rating]] = {
             "wins": [],
             "losses": [],
             "draws": [],
@@ -200,6 +201,16 @@ class Player:
         _rating = self.ratings[-1]
 
         return glicko.create_rating(mu=_rating.mu, phi=_rating.phi, sigma=_rating.sigma)
+
+    def rating_max(self) -> Union[None, glicko2.Rating]:
+        """Personal best, ignore highly uncertain ratings"""
+        return max(
+            filter(
+                lambda x: x.phi < DEVIATION_PROVISIONAL, self.ratings  # type: ignore
+            ),
+            key=lambda x: x.mu,  # type: ignore
+            default=None,
+        )
 
     def add_club(self, club: str) -> None:
         """Adds a club tally to the club appearances dictionary"""
@@ -246,7 +257,7 @@ class Player:
         """Returns average opponent"""
 
         _avg_opponent = sum(
-            sum(self.opponent_ratings[_result])
+            sum(x.mu for x in self.opponent_ratings[_result])
             for _result in ["wins", "losses", "draws"]
         ) / (
             sum(
@@ -260,7 +271,7 @@ class Player:
     def best_result(self, mode: str = "wins") -> Union[None, int]:
         """Returns best win"""
         try:
-            _best_result = max(self.opponent_ratings[mode])
+            _best_result = max(x.mu for x in self.opponent_ratings[mode])
         except ValueError:
             return None
 

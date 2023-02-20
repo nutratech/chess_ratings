@@ -32,6 +32,10 @@ BUFFER_HT = shutil.get_terminal_size()[1]
 # Location on disk to cache CSV file
 CSV_GAMES_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "games.csv")
 
+# lichess.org uses 110 and 75 (65 for variants)
+DEVIATION_PROVISIONAL = 110
+DEVIATION_ESTABLISHED = 75
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Enums
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
