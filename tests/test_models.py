@@ -21,7 +21,7 @@ def test_Club() -> None:
 
     clubs = set()
 
-    club_name_raw = "Royal Oak (Methodist Church)"
+    club_name_raw = "Royal Oak (ROFUM)"
     club_name_abbrev = "Royal Oak"
 
     club = Club(club_name_raw)
@@ -59,7 +59,7 @@ def test_Game_validate_fields_and_parse_time_control() -> None:
             "Black": "berto z",
             "Score": "0-1",
             "Termination": "Resignation",
-            "Location": "Royal Oak (Methodist Church)",
+            "Location": "Royal Oak (ROFUM)",
             "Time": "15+10",
             "# moves": "37",
             "Opening": "B37",
