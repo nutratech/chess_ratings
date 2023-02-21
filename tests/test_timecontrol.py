@@ -15,12 +15,18 @@ from chessdet.timecontrol import game_type
         (0.25, 0, "UltraBullet"),
         (0.5, 0, "Bullet"),
         (2, 1, "Bullet"),
+        # Blitz
         (2, 2, "Blitz"),
         (3, 0, "Blitz"),
         (5, 4, "Blitz"),
+        # Rapid
         (5, 5, "Rapid"),
-        (10, 0, "Rapid"),
+        (8, 0, "Rapid"),
         (15, 10, "Rapid"),
+        (20, 5, "Rapid"),
+        # Classical
+        (15, 15, "Classical"),
+        (20, 10, "Classical"),
         (25, 0, "Classical"),
         (120, 60, "Classical"),
         (240, 180, "Classical"),
