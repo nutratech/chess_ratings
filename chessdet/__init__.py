@@ -94,19 +94,16 @@ TIME_CONTROL_RAPID = ("Rapid", 1500)
 TIME_CONTROL_CLASSICAL = ("Classical", math.inf)
 TIME_CONTROL_CORRESPONDENCE = ("Correspondence", -1)
 
-TIME_CONTROLS = [
-    x[0]
-    for x in (
-        TIME_CONTROL_ULTRA_BULLET,
-        TIME_CONTROL_BULLET,
-        TIME_CONTROL_BLITZ,
-        TIME_CONTROL_RAPID,
-        TIME_CONTROL_CLASSICAL,
-        # NOTE: does this belong or have any practical use here yet?
-        TIME_CONTROL_CORRESPONDENCE,
-    )
-]
-ENUM_TIME_CONTROLS = set(TIME_CONTROLS)
+TIME_CONTROLS = (
+    TIME_CONTROL_ULTRA_BULLET,
+    TIME_CONTROL_BULLET,
+    TIME_CONTROL_BLITZ,
+    TIME_CONTROL_RAPID,
+    TIME_CONTROL_CLASSICAL,
+    # NOTE: does this belong or have any practical use here yet?
+    TIME_CONTROL_CORRESPONDENCE,
+)
+ENUM_TIME_CONTROLS = set(x[0] for x in TIME_CONTROLS)
 
 
 ####################################################
