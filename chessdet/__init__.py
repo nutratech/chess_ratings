@@ -11,7 +11,7 @@ import shutil
 
 # Package info
 __title__ = "cr"
-__version__ = "0.0.1.dev11"
+__version__ = "0.0.1.dev12"
 __author__ = "Shane J"
 __email__ = "chown_tee@proton.me"
 __license__ = "GPL v3"
@@ -71,16 +71,17 @@ VARIANTS = [
     STANDARD,
     "Armageddon",
     "Chess960",
+    "Grand chess",
     "Atomic",
     "Crazy house",
     "Three check",
     "King of the hill",
     "Racing kings",
     "Horde",
-    "Grand chess",
     # 4 player
     "Head and hand",
     "Bug house",
+    "Four-player chess",
 ]
 ENUM_VARIANTS = set(VARIANTS)
 
@@ -101,16 +102,16 @@ TIME_CONTROLS = [
         TIME_CONTROL_BLITZ,
         TIME_CONTROL_RAPID,
         TIME_CONTROL_CLASSICAL,
-        # FIXME: Does this break any tests?
+        # NOTE: does this belong or have any practical use here yet?
         TIME_CONTROL_CORRESPONDENCE,
     )
 ]
 ENUM_TIME_CONTROLS = set(TIME_CONTROLS)
 
 
-################################################################################
-# CLI config class (settings & preferences, defaults, and flags)
-################################################################################
+####################################################
+# CLI config (settings, defaults, and flags)
+####################################################
 
 
 # pylint: disable=too-few-public-methods,too-many-instance-attributes
