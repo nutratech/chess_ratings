@@ -89,7 +89,7 @@ class Game:
 
         # Optional fields
         self.variant = row["Variant"] or STANDARD
-        self.num_moves = int(row["# moves"] or -1)
+        self.num_moves = int(row["# moves"].split("?")[0] or -1)
         self.opening = row["Opening"]
         self.url_analysis = row["Analysis"]
         self.notes = row["Notes"]

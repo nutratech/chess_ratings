@@ -53,7 +53,7 @@ ENUM_TERMINATION = {
     # Win / Loss
     "Checkmate",
     "Resignation",
-    "Clock flag",
+    "Timeout",
     "Other",
     # Draw
     "Agreement",
