@@ -204,15 +204,9 @@ class Player:
 
     def rating_max(self) -> Union[None, int]:
         """Personal best, ignore highly uncertain ratings"""
+        filtered_ratings = filter(lambda y: y.phi < DEVIATION_PROVISIONAL, self.ratings)
         try:
-            return round(
-                max(
-                    x.mu
-                    for x in filter(
-                        lambda y: y.phi < DEVIATION_PROVISIONAL, self.ratings
-                    )
-                )
-            )
+            return round(max(x.mu for x in filtered_ratings))
         except ValueError:
             return None
 
