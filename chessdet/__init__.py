@@ -82,6 +82,8 @@ VARIANTS = [
     "Head and hand",
     "Bug house",
     "Four-player chess",
+    # Any number players
+    "Team chesss",  # e.g. me vs. everyone at Norm's
 ]
 ENUM_VARIANTS = set(VARIANTS)
 
