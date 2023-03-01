@@ -59,7 +59,7 @@ ENUM_TERMINATION = {
     "Agreement",
     "Repetition",
     "Stalemate",
-    "Insufficient material",
+    "Insuff Material",
     "50 move rule",
 }
 

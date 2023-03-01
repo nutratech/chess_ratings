@@ -30,6 +30,8 @@ CLUB_DICT = {
     "Oak Park (Community Center)": "Oak Park",
     "Port Huron (Palmer Park Rec Center)": "Port Huron",
     "Dearborn Brewing Chess Club": "Dearborn Brew",
+    # Other locations (non-clubs)
+    "Norm's": "Norm's",
 }
 
 
