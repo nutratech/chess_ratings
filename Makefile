@@ -86,7 +86,12 @@ build: _venv	## Bundle a source distribution
 
 rank:	## Rank (copy for google sheet)
 	./cr fetch
-	./cr rank --no-abbrev-titles -s -mg | xclip -sel clip
+	if [ "$(shell uname -o)" = "Darwin" ]; then \
+		./cr rank --no-abbrev-titles -s -mg | pbcopy; \
+	else \
+		./cr rank --no-abbrev-titles -s -mg | xclip -sel clip; \
+	fi
+
 
 
 
