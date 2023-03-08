@@ -26,7 +26,7 @@ from chessdet.glicko2 import glicko2
 
 CLUB_DICT = {
     "Royal Oak (ROFUM)": "Royal Oak",
-    "Oakland County (Methodist Church, Waterford)": "Oak County",
+    "Oakland County (Methodist Church, Waterford)": "Oakland County",
     "Oak Park (Community Center)": "Oak Park",
     "Port Huron (Palmer Park Rec Center)": "Port Huron",
     "Dearborn Brewing Chess Club": "Dearborn Brew",
