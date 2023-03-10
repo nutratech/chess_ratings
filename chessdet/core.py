@@ -136,7 +136,7 @@ def func_rank(
     # Print the rankings table
     _table = tabulate(table_series_players, headers)
     print_title(
-        f"Rankings ({len(games)} games, {len(players)} players, {len(clubs)} clubs)"
+        f"Standings ({len(games)} games, {len(players)} players, {len(clubs)} clubs)"
     )
     print(_table)
 
