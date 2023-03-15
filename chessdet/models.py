@@ -7,6 +7,7 @@ Game model used for players, location, date, outcome, etc.
 Player model used for singles & doubles ratings, username, wins/losses, etc.
 Club model used for grouping games and players to location names.
 """
+import math
 from datetime import datetime
 from typing import Dict, List, Set, Union
 
@@ -19,6 +20,7 @@ from chessdet import (
     ENUM_TERMINATION,
     ENUM_VARIANTS,
     STANDARD,
+    TIME_CONTROL_CLASSICAL,
     TIME_CONTROL_CORRESPONDENCE,
     timecontrol,
 )
@@ -120,6 +122,10 @@ class Game:
         elif "d" in self.time_control:
             self.days_per_move = int(self.time_control.split("d")[0])
             self.category = TIME_CONTROL_CORRESPONDENCE[0]
+        elif float(self.time_control) == math.inf:
+            self.base_time = 30
+            self.increment = 20
+            self.category = TIME_CONTROL_CLASSICAL[0]
         else:
             self.validation_error(
                 f"Invalid time control, must contain '+' or 'd', "
