@@ -7,7 +7,6 @@ Game model used for players, location, date, outcome, etc.
 Player model used for singles & doubles ratings, username, wins/losses, etc.
 Club model used for grouping games and players to location names.
 """
-import math
 from datetime import datetime
 from typing import Dict, List, Set, Union
 
@@ -119,10 +118,10 @@ class Game:
             self.increment = int(self.time_control.split("+")[1])
             # Assign category
             self.category = timecontrol.game_type(self.base_time, self.increment)
-        elif "d" in self.time_control:
+        elif self.time_control.endswith("d"):
             self.days_per_move = int(self.time_control.split("d")[0])
             self.category = TIME_CONTROL_CORRESPONDENCE[0]
-        elif float(self.time_control) == math.inf:
+        elif self.time_control in {"inf", "infinity"}:
             self.base_time = 30
             self.increment = 20
             self.category = TIME_CONTROL_CLASSICAL[0]

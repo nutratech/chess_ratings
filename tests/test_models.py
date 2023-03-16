@@ -96,7 +96,7 @@ def test_Game_validate_fields_and_parse_time_control() -> None:
     # Time control (invalid one)
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["Time"] = "7f"
+        row["Time"] = "7zsdq"
         Game(row)
 
 
