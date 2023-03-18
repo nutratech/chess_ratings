@@ -37,8 +37,6 @@ CLUB_DICT = {
 
 
 # pylint: disable=too-few-public-methods
-
-
 class Club:
     """
     Model for storing the club name
