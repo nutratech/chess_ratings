@@ -57,6 +57,7 @@ lint: _venv	## Lint the code
 test: _venv	## Test the code
 	coverage run -m pytest tests/
 	coverage report
+	grep fail_under setup.cfg
 
 ALL_CLEAN_LOCS=build/ *.egg-info
 ALL_CLEAN_ARGS=-name .coverage -o -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache
