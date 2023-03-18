@@ -31,6 +31,7 @@ def game_type(base_time: int, increment: int) -> str:
         return TIME_CONTROL_BULLET[0]
     if game_duration <= TIME_CONTROL_BLITZ[1]:
         return TIME_CONTROL_BLITZ[0]
+    # NOTE: include 20+15 in the lower bound of Classical
     if game_duration < TIME_CONTROL_RAPID[1]:
         return TIME_CONTROL_RAPID[0]
         #  else: game_duration < TIME_CONTROL_CLASSICAL[1]:

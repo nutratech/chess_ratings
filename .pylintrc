@@ -7,7 +7,3 @@ fail-under=10
 
 disable=
     fixme,
-
-    # Temporary
-    too-many-instance-attributes,
-    too-many-locals,

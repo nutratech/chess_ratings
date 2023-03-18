@@ -61,6 +61,7 @@ class Club:
         return hash(self.name)
 
 
+# pylint: disable=too-many-instance-attributes
 class Game:
     """
     Model for storing date, location, wins/losses, opponent, etc.
