@@ -25,11 +25,11 @@ def game_type(base_time: int, increment: int) -> str:
 
     game_duration = base_time * 60 + increment * 40
 
-    if game_duration < TIME_CONTROL_ULTRA_BULLET[1]:
+    if game_duration <= TIME_CONTROL_ULTRA_BULLET[1]:
         return TIME_CONTROL_ULTRA_BULLET[0]
-    if game_duration < TIME_CONTROL_BULLET[1]:
+    if game_duration <= TIME_CONTROL_BULLET[1]:
         return TIME_CONTROL_BULLET[0]
-    if game_duration < TIME_CONTROL_BLITZ[1]:
+    if game_duration <= TIME_CONTROL_BLITZ[1]:
         return TIME_CONTROL_BLITZ[0]
     if game_duration < TIME_CONTROL_RAPID[1]:
         return TIME_CONTROL_RAPID[0]

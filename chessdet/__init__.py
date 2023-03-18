@@ -94,10 +94,11 @@ ENUM_VARIANTS = set(VARIANTS)
 
 # Time control
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-TIME_CONTROL_ULTRA_BULLET = ("UltraBullet", 30)
-TIME_CONTROL_BULLET = ("Bullet", 180)
-TIME_CONTROL_BLITZ = ("Blitz", 480)
-TIME_CONTROL_RAPID = ("Rapid", 1500)
+# NOTE: these differ slightly from lichess values, because OTB hand movement is slower
+TIME_CONTROL_ULTRA_BULLET = ("UltraBullet", 60)
+TIME_CONTROL_BULLET = ("Bullet", 200)
+TIME_CONTROL_BLITZ = ("Blitz", 600)
+TIME_CONTROL_RAPID = ("Rapid", 1800)
 TIME_CONTROL_CLASSICAL = ("Classical", math.inf)
 TIME_CONTROL_CORRESPONDENCE = ("Correspondence", -1)
 
