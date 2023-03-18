@@ -19,7 +19,7 @@ EMPTY_BYTES = bytes(str(), encoding="utf-8")
 
 def test_get_google_sheet_happy_path(requests_mock: Mocker) -> None:
     """Tests to see if the GET sheet method works"""
-    requests_mock.get(TEST_CSV_GAMES_URL, content=EMPTY_BYTES)
+    requests_mock.get(TEST_CSV_GAMES_URL, content=EMPTY_BYTES, timeout=3)
 
     result = get_google_sheet(TEST_CSV_GAMES_URL)
     assert isinstance(result, bytes)
@@ -28,7 +28,7 @@ def test_get_google_sheet_happy_path(requests_mock: Mocker) -> None:
 
 def test_get_google_sheet_error(requests_mock: Mocker) -> None:
     """Tests to see if the GET sheet method works"""
-    requests_mock.get(TEST_CSV_GAMES_URL, status_code=404)
+    requests_mock.get(TEST_CSV_GAMES_URL, status_code=404, timeout=3)
 
     with pytest.raises(requests.exceptions.HTTPError):
         get_google_sheet(TEST_CSV_GAMES_URL)
