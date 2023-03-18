@@ -56,5 +56,5 @@ def test_main_http_error_and_url_error(requests_mock: Mocker) -> None:
     """Test the HTTP / URL exceptions"""
 
     with pytest.raises(requests.exceptions.HTTPError):
-        requests_mock.get(CSV_GAMES_URL, status_code=400, timeout=3)
+        requests_mock.get(CSV_GAMES_URL, status_code=400)  # nosec: B113
         main(args=["-d", "fetch"])
