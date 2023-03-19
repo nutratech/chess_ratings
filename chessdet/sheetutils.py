@@ -8,7 +8,12 @@ import csv
 
 import requests
 
-from chessdet import CLI_CONFIG, CSV_GAMES_FILE_PATH
+from chessdet import (
+    CLI_CONFIG,
+    CSV_GAMES_FILE_PATH,
+    REQUEST_CONNECT_TIMEOUT,
+    REQUEST_READ_TIMEOUT,
+)
 from chessdet.env import CSV_GAMES_URL
 
 
@@ -18,9 +23,11 @@ def get_google_sheet(url: str = CSV_GAMES_URL) -> bytes:
     """
     print(f"GET '{url}'\\")
 
-    response = requests.get(url, timeout=2)
-    response.raise_for_status()
+    response = requests.get(
+        url, timeout=(REQUEST_CONNECT_TIMEOUT, REQUEST_READ_TIMEOUT)
+    )
 
+    response.raise_for_status()
     return bytes(response.content)
 
 

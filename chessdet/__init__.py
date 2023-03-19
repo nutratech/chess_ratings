@@ -32,7 +32,6 @@ BUFFER_HT = shutil.get_terminal_size()[1]
 # Location on disk to cache CSV file
 CSV_GAMES_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "games.csv")
 
-# FIXME: use these
 # Request timeouts
 REQUEST_CONNECT_TIMEOUT = 3
 REQUEST_READ_TIMEOUT = 15
