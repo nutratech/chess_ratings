@@ -14,8 +14,9 @@ from chessdet.timecontrol import game_type
     [
         (1, 0, "UltraBullet"),
         (2, 1, "Bullet"),
+        (3, 0, "Bullet"),
         # Blitz
-        (5, 4, "Blitz"),
+        (5, 7, "Blitz"),
         (10, 0, "Blitz"),
         # Rapid
         (7, 5, "Rapid"),
