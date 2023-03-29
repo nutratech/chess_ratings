@@ -200,7 +200,7 @@ def func_match_ups(
     _n_top = min(100, _n_pairs)
     print_title(f"Match ups (top {_n_top}, {n_players}C2={_n_pairs} possible)")
     _table = tabulate(
-        match_ups,
+        match_ups[:_n_top],
         headers=["Player 1", "Player 2", "ΔR", "RD", "E"],
     )
     print(_table)
