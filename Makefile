@@ -15,15 +15,16 @@ _help:
 # TODO: OS-independent venv, e.g. .venv/Scripts/activate
 
 init:	## Initialize venv
-	$(PY_SYS_INTERPRETER) -m venv .venv
-	direnv allow || source .venv/bin/activate
+	$(PY_SYS_INTERPRETER) -m venv --clear .venv
+	$(PY_SYS_INTERPRETER) -m venv --upgrade-deps .venv
+	- direnv allow
 
 PYTHON ?= $(shell which python)
 PWD ?= $(shell pwd)
 .PHONY: _venv
 _venv:
 	# ensuring venv
-	[ "$(PYTHON)" = "$(PWD)/.venv/bin/python" ] || [ "$(PYTHON)" = "$(PWD)/.venv/Scripts/python" ]
+	[ "${SKIP_VENV}" ] || [ "$(PYTHON)" = "$(PWD)/.venv/bin/python" ] || [ "$(PYTHON)" = "$(PWD)/.venv/Scripts/python" ]
 
 deps: _venv	## Install requirements & sub-module
 	git submodule update --init
@@ -36,44 +37,73 @@ deps: _venv	## Install requirements & sub-module
 # Lint, test, format, clean
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ALL_LINT_LOCS=cr *.py chessdet/ tests/
+# CHANGED_FILES_RST ?= $(shell git diff origin/master --name-only --diff-filter=MACRU \*.rst)
+CHANGED_FILES_PY ?= $(shell git diff origin/master --name-only --diff-filter=MACRU \*.py)
+CHANGED_FILES_PY_FLAG ?= $(shell if [ "$(CHANGED_FILES_PY)" ]; then echo 1; else echo; fi)
 
 format: _venv	## Format the code
-	isort $(ALL_LINT_LOCS)
-	black $(ALL_LINT_LOCS)
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    isort ${CHANGED_FILES_PY}; \
+	fi
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    black ${CHANGED_FILES_PY}; \
+	fi
 
 lint: _venv	## Lint the code
-	# check formatting: Python
-	isort --diff --check $(ALL_LINT_LOCS)
-	black --check $(ALL_LINT_LOCS)
-	# lint Python
-	pycodestyle $(ALL_LINT_LOCS)
-	bandit -c .banditrc -q -r $(ALL_LINT_LOCS)
-	flake8 --statistics --doctests $(ALL_LINT_LOCS)
-	pylint $(ALL_LINT_LOCS)
-	mypy $(ALL_LINT_LOCS)
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Check formatting: Python
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    isort --diff --check ${CHANGED_FILES_PY}; \
+	fi
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    black --check ${CHANGED_FILES_PY}; \
+	fi
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Lint Python
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    pycodestyle ${CHANGED_FILES_PY}; \
+	fi
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    bandit -c .banditrc -q -r ${CHANGED_FILES_PY}; \
+	fi
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    flake8 --statistics --doctests ${CHANGED_FILES_PY}; \
+	fi
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    pylint ${CHANGED_FILES_PY}; \
+	fi
+	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
+	    mypy ${CHANGED_FILES_PY}; \
+	fi
 
 test: _venv	## Test the code
-	coverage run -m pytest tests/
+	coverage run
 	coverage report
+	grep fail_under setup.cfg
 
 ALL_CLEAN_LOCS=build/ *.egg-info
+ALL_CLEAN_SCAN_LOCS=cr *.py chessdet/ tests/
 ALL_CLEAN_ARGS=-name .coverage -o -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache
 clean:	## Clean up pycache/ and other left overs
-	rm -rf $(ALL_CLEAN_LOCS)
+	rm -rf ${ALL_CLEAN_LOCS}
 	rm -rf $(shell find . -maxdepth 1 $(ALL_CLEAN_ARGS))
-	rm -rf $(shell find $(ALL_LINT_LOCS) $(ALL_CLEAN_ARGS))
+	rm -rf $(shell find $(ALL_CLEAN_SCAN_LOCS) $(ALL_CLEAN_ARGS))
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Install
+# Install, build
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PY_SYS_INTERPRETER ?= /usr/bin/python3
 
 install:	## Install into user space
 	$(PY_SYS_INTERPRETER) -m pip install .
+
+build: _venv	## Bundle a source distribution
+	$(PYTHON) setup.py sdist
 
 
 
@@ -83,7 +113,12 @@ install:	## Install into user space
 
 rank:	## Rank (copy for google sheet)
 	./cr fetch
-	./cr rank --no-abbrev-titles -s -mg | xclip -sel clip
+	if [ "$(shell uname -o)" = "Darwin" ]; then \
+		./cr rank --no-abbrev-titles -s -mg | pbcopy; \
+	else \
+		./cr rank --no-abbrev-titles -s -mg | xclip -sel clip; \
+	fi
+
 
 
 

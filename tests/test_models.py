@@ -9,6 +9,7 @@ from typing import Dict
 
 import pytest
 
+from chessdet import DEVIATION_PROVISIONAL
 from chessdet.glicko2 import glicko2
 from chessdet.models import Club, Game, Player
 from tests import TEST_CSV_GAMES_FILE_PATH
@@ -21,7 +22,7 @@ def test_Club() -> None:
 
     clubs = set()
 
-    club_name_raw = "Royal Oak (Methodist Church)"
+    club_name_raw = "Royal Oak (ROFUM)"
     club_name_abbrev = "Royal Oak"
 
     club = Club(club_name_raw)
@@ -59,7 +60,7 @@ def test_Game_validate_fields_and_parse_time_control() -> None:
             "Black": "berto z",
             "Score": "0-1",
             "Termination": "Resignation",
-            "Location": "Royal Oak (Methodist Church)",
+            "Location": "Royal Oak (ROFUM)",
             "Time": "15+10",
             "# moves": "37",
             "Opening": "B37",
@@ -95,7 +96,7 @@ def test_Game_validate_fields_and_parse_time_control() -> None:
     # Time control (invalid one)
     with pytest.raises(ValueError):
         row = _default_row_builder()
-        row["Time"] = "7f"
+        row["Time"] = "7zsdq"
         Game(row)
 
 
@@ -115,15 +116,21 @@ def test_Player() -> None:
     # Record W/D/L
     assert "+0 =0 -0" == player.str_wins_draws_losses()
 
+    # TODO: player.rating_max()
+
     # avg_opponent(), best_result()
-    player.opponent_ratings["losses"] = [1500]
+    deviation_valid = DEVIATION_PROVISIONAL - 0.001
+    player.opponent_ratings["losses"] = [glicko2.Rating(phi=deviation_valid)]
+    player.opponent_ratings["draws"] = [glicko2.Rating()]
+    player.opponent_ratings["wins"] = [glicko2.Rating()]
     assert 1500 == player.avg_opponent()
+    assert 1500 == player.best_result(mode="losses")
+    # filter provisional ratings
+    assert None is player.best_result(mode="draws")
     assert None is player.best_result(mode="wins")
 
-    player.opponent_ratings["draws"] = [1500]
-    assert 1500 == player.best_result(mode="draws")
-
-    player.opponent_ratings["wins"] = [1500]
+    # only show wins for "certain" ratings
+    player.opponent_ratings["wins"] = [glicko2.Rating(phi=deviation_valid)]
     assert 1500 == player.best_result(mode="wins")
 
     # graph_ratings()

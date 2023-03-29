@@ -11,7 +11,7 @@ import shutil
 
 # Package info
 __title__ = "cr"
-__version__ = "0.0.1.dev10"
+__version__ = "0.0.1.dev13"
 __author__ = "Shane J"
 __email__ = "chown_tee@proton.me"
 __license__ = "GPL v3"
@@ -32,6 +32,14 @@ BUFFER_HT = shutil.get_terminal_size()[1]
 # Location on disk to cache CSV file
 CSV_GAMES_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "games.csv")
 
+# Request timeouts
+REQUEST_CONNECT_TIMEOUT = 3
+REQUEST_READ_TIMEOUT = 15
+
+# lichess.org uses 110 and 75 (65 for variants)
+DEVIATION_PROVISIONAL = 110
+DEVIATION_ESTABLISHED = 75
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Enums
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,13 +57,13 @@ ENUM_TERMINATION = {
     # Win / Loss
     "Checkmate",
     "Resignation",
-    "Clock flag",
+    "Timeout",
     "Other",
     # Draw
     "Agreement",
     "Repetition",
     "Stalemate",
-    "Insufficient material",
+    "Insuff Material",
     "50 move rule",
 }
 
@@ -67,46 +75,47 @@ VARIANTS = [
     STANDARD,
     "Armageddon",
     "Chess960",
+    "Grand chess",
     "Atomic",
     "Crazy house",
     "Three check",
     "King of the hill",
     "Racing kings",
     "Horde",
-    "Grand chess",
     # 4 player
     "Head and hand",
     "Bug house",
+    "Four-player chess",
+    # Any number players
+    "Team chesss",  # e.g. me vs. everyone at Norm's
 ]
 ENUM_VARIANTS = set(VARIANTS)
 
 # Time control
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-TIME_CONTROL_ULTRA_BULLET = ("UltraBullet", 30)
-TIME_CONTROL_BULLET = ("Bullet", 180)
-TIME_CONTROL_BLITZ = ("Blitz", 480)
-TIME_CONTROL_RAPID = ("Rapid", 1500)
+# NOTE: these differ slightly from lichess values, because OTB hand movement is slower
+TIME_CONTROL_ULTRA_BULLET = ("UltraBullet", 60)
+TIME_CONTROL_BULLET = ("Bullet", 200)
+TIME_CONTROL_BLITZ = ("Blitz", 600)
+TIME_CONTROL_RAPID = ("Rapid", 1800)
 TIME_CONTROL_CLASSICAL = ("Classical", math.inf)
 TIME_CONTROL_CORRESPONDENCE = ("Correspondence", -1)
 
-TIME_CONTROLS = [
-    x[0]
-    for x in (
-        TIME_CONTROL_ULTRA_BULLET,
-        TIME_CONTROL_BULLET,
-        TIME_CONTROL_BLITZ,
-        TIME_CONTROL_RAPID,
-        TIME_CONTROL_CLASSICAL,
-        # FIXME: Does this break any tests?
-        TIME_CONTROL_CORRESPONDENCE,
-    )
-]
-ENUM_TIME_CONTROLS = set(TIME_CONTROLS)
+TIME_CONTROLS = (
+    TIME_CONTROL_ULTRA_BULLET,
+    TIME_CONTROL_BULLET,
+    TIME_CONTROL_BLITZ,
+    TIME_CONTROL_RAPID,
+    TIME_CONTROL_CLASSICAL,
+    # NOTE: does this belong or have any practical use here yet?
+    TIME_CONTROL_CORRESPONDENCE,
+)
+ENUM_TIME_CONTROLS = set(x[0] for x in TIME_CONTROLS)
 
 
-################################################################################
-# CLI config class (settings & preferences, defaults, and flags)
-################################################################################
+####################################################
+# CLI config (settings, defaults, and flags)
+####################################################
 
 
 # pylint: disable=too-few-public-methods,too-many-instance-attributes

@@ -14,27 +14,29 @@ import asciichartpy  # pylint: disable=import-error
 
 from chessdet import (
     CLI_CONFIG,
+    DEVIATION_PROVISIONAL,
     ENUM_SCORES,
     ENUM_TERMINATION,
     ENUM_VARIANTS,
     STANDARD,
+    TIME_CONTROL_CLASSICAL,
     TIME_CONTROL_CORRESPONDENCE,
     timecontrol,
 )
 from chessdet.glicko2 import glicko2
 
 CLUB_DICT = {
-    "Royal Oak (Methodist Church)": "Royal Oak",
-    "Oakland County (Methodist Church, Waterford)": "Oak County",
+    "Royal Oak (ROFUM)": "Royal Oak",
+    "Oakland County (Methodist Church, Waterford)": "Oakland County",
     "Oak Park (Community Center)": "Oak Park",
     "Port Huron (Palmer Park Rec Center)": "Port Huron",
     "Dearborn Brewing Chess Club": "Dearborn Brew",
+    # Other locations (non-clubs)
+    "Norm's": "Norm's",
 }
 
 
 # pylint: disable=too-few-public-methods
-
-
 class Club:
     """
     Model for storing the club name
@@ -57,6 +59,7 @@ class Club:
         return hash(self.name)
 
 
+# pylint: disable=too-many-instance-attributes
 class Game:
     """
     Model for storing date, location, wins/losses, opponent, etc.
@@ -88,7 +91,7 @@ class Game:
 
         # Optional fields
         self.variant = row["Variant"] or STANDARD
-        self.num_moves = int(row["# moves"] or -1)
+        self.num_moves = int(row["# moves"].split("?")[0] or -1)
         self.opening = row["Opening"]
         self.url_analysis = row["Analysis"]
         self.notes = row["Notes"]
@@ -114,9 +117,13 @@ class Game:
             self.increment = int(self.time_control.split("+")[1])
             # Assign category
             self.category = timecontrol.game_type(self.base_time, self.increment)
-        elif "d" in self.time_control:
+        elif self.time_control.endswith("d"):
             self.days_per_move = int(self.time_control.split("d")[0])
             self.category = TIME_CONTROL_CORRESPONDENCE[0]
+        elif self.time_control in {"inf", "infinity"}:
+            self.base_time = 30
+            self.increment = 20
+            self.category = TIME_CONTROL_CLASSICAL[0]
         else:
             self.validation_error(
                 f"Invalid time control, must contain '+' or 'd', "
@@ -174,7 +181,7 @@ class Player:
         # NOTE: length of this is one longer than other arrays
         self.ratings = [glicko2.Rating()]
 
-        self.opponent_ratings: Dict[str, List[float]] = {
+        self.opponent_ratings: Dict[str, List[glicko2.Rating]] = {
             "wins": [],
             "losses": [],
             "draws": [],
@@ -200,6 +207,14 @@ class Player:
         _rating = self.ratings[-1]
 
         return glicko.create_rating(mu=_rating.mu, phi=_rating.phi, sigma=_rating.sigma)
+
+    def rating_max(self) -> Union[None, int]:
+        """Personal best, ignore highly uncertain ratings"""
+        filtered_ratings = filter(lambda y: y.phi < DEVIATION_PROVISIONAL, self.ratings)
+        try:
+            return round(max(x.mu for x in filtered_ratings))
+        except ValueError:
+            return None
 
     def add_club(self, club: str) -> None:
         """Adds a club tally to the club appearances dictionary"""
@@ -242,11 +257,12 @@ class Player:
 
         return f"+{n_wins} ={n_draws} -{n_losses}"
 
-    def avg_opponent(self) -> Union[int, float]:
+    def avg_opponent(self) -> int:
         """Returns average opponent"""
 
+        # FIXME: filter if < DEVIATION_PROVISIONAL
         _avg_opponent = sum(
-            sum(self.opponent_ratings[_result])
+            sum(x.mu for x in self.opponent_ratings[_result])
             for _result in ["wins", "losses", "draws"]
         ) / (
             sum(
@@ -254,17 +270,20 @@ class Player:
                 for _result in ["wins", "losses", "draws"]
             )
         )
-
         return round(_avg_opponent)
 
     def best_result(self, mode: str = "wins") -> Union[None, int]:
         """Returns best win"""
         try:
-            _best_result = max(self.opponent_ratings[mode])
-        except ValueError:
+            return round(
+                max(
+                    x.mu
+                    for x in self.opponent_ratings[mode]
+                    if x.phi < DEVIATION_PROVISIONAL
+                )
+            )
+        except (ValueError, TypeError):
             return None
-
-        return round(_best_result)
 
     def graph_ratings(
         self, graph_width_limit: int = 50, graph_height: int = 12
