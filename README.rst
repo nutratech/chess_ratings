@@ -50,6 +50,12 @@ To skip downloading (assume cached) AND print match ups & graphs, do this.
 
 ``./cr rank -smg``
 
+If you are running macOs or Linux, you can copy to clipboard with this.
+
+``make rank``
+
+**TODO:** Automate the sheet updating with a Google Sheet API script.
+
 
 Filtering Players
 ~~~~~~~~~~~~~~~~~

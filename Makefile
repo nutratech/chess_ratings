@@ -13,19 +13,22 @@ _help:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # TODO: OS-independent venv, e.g. .venv/Scripts/activate
-
+.PHONY: init
 init:	## Initialize venv
 	$(PY_SYS_INTERPRETER) -m venv --clear .venv
 	$(PY_SYS_INTERPRETER) -m venv --upgrade-deps .venv
 	- direnv allow
 
+
 PYTHON ?= $(shell which python)
 PWD ?= $(shell pwd)
+
 .PHONY: _venv
 _venv:
 	# ensuring venv
 	[ "${SKIP_VENV}" ] || [ "$(PYTHON)" = "$(PWD)/.venv/bin/python" ] || [ "$(PYTHON)" = "$(PWD)/.venv/Scripts/python" ]
 
+.PHONY: deps
 deps: _venv	## Install requirements & sub-module
 	git submodule update --init
 	pip install -r requirements.txt
@@ -37,10 +40,11 @@ deps: _venv	## Install requirements & sub-module
 # Lint, test, format, clean
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# CHANGED_FILES_RST ?= $(shell git diff origin/master --name-only --diff-filter=MACRU \*.rst)
-CHANGED_FILES_PY ?= $(shell git diff origin/master --name-only --diff-filter=MACRU \*.py)
+REF_HEAD ?= origin/master
+CHANGED_FILES_PY ?= $(shell git diff $(REF_HEAD) --name-only --diff-filter=MACRU \*.py)
 CHANGED_FILES_PY_FLAG ?= $(shell if [ "$(CHANGED_FILES_PY)" ]; then echo 1; else echo; fi)
 
+.PHONY: format
 format: _venv	## Format the code
 	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
 	    isort ${CHANGED_FILES_PY}; \
@@ -49,6 +53,7 @@ format: _venv	## Format the code
 	    black ${CHANGED_FILES_PY}; \
 	fi
 
+.PHONY: lint
 lint: _venv	## Lint the code
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	# Check formatting: Python
@@ -78,14 +83,18 @@ lint: _venv	## Lint the code
 	    mypy ${CHANGED_FILES_PY}; \
 	fi
 
+.PHONY: test
 test: _venv	## Test the code
 	coverage run
 	coverage report
 	grep fail_under setup.cfg
 
+
 ALL_CLEAN_LOCS=build/ *.egg-info
 ALL_CLEAN_SCAN_LOCS=cr *.py chessdet/ tests/
 ALL_CLEAN_ARGS=-name .coverage -o -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache
+
+.PHONY: clean
 clean:	## Clean up pycache/ and other left overs
 	rm -rf ${ALL_CLEAN_LOCS}
 	rm -rf $(shell find . -maxdepth 1 $(ALL_CLEAN_ARGS))
@@ -99,11 +108,13 @@ clean:	## Clean up pycache/ and other left overs
 
 PY_SYS_INTERPRETER ?= /usr/bin/python3
 
+.PHONY: install
 install:	## Install into user space
 	$(PY_SYS_INTERPRETER) -m pip install .
 
-build: _venv	## Bundle a source distribution
-	$(PYTHON) setup.py sdist
+.PHONY: build
+build:	## Bundle a source distribution
+	$(PY_SYS_INTERPRETER) setup.py sdist
 
 
 
@@ -111,6 +122,7 @@ build: _venv	## Bundle a source distribution
 # Rank
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.PHONY: rank
 rank:	## Rank (copy for google sheet)
 	./cr fetch
 	if [ "$(shell uname -o)" = "Darwin" ]; then \
@@ -121,12 +133,13 @@ rank:	## Rank (copy for google sheet)
 
 
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Verify targets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 N_ANNOTATED_FILES_ACTUAL ?= $(shell grep @author $(shell git ls-files \*.py) | wc -l)
 N_ANNOTATED_FILES_EXPECT ?= $(shell git ls-files \*.py | grep -v glicko2 | wc -l)
-verify/py-annotated:	## Verify all pythong files have the annotation at top
+
+.PHONY: verify/py-annotated
+verify/py-annotated:	## Verify all python files have the annotation at top
 	[[ "$(N_ANNOTATED_FILES_ACTUAL)" == "$(N_ANNOTATED_FILES_EXPECT)" ]]
