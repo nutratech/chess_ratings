@@ -1,4 +1,4 @@
-argcomplete==2.1.2
+argcomplete==3.0.5
 asciichartpy==1.5.25
 python-dotenv==1.0.0
 requests==2.28.2
