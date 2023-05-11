@@ -12,12 +12,13 @@ _help:
 # Initialize venv, install requirements
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# TODO: OS-independent venv, e.g. .venv/Scripts/activate
+# TODO: OS-dependent venv
 .PHONY: init
 init:	## Initialize venv
-	$(PY_SYS_INTERPRETER) -m venv --clear .venv
-	$(PY_SYS_INTERPRETER) -m venv --upgrade-deps .venv
-	- direnv allow
+	rm -rf .venv
+	${PY_SYS_INTERPRETER}-m venv .venv
+	${PY_SYS_INTERPRETER} -m venv --upgrade-deps .venv
+	direnv allow
 
 
 PYTHON ?= $(shell which python)
@@ -26,7 +27,7 @@ PWD ?= $(shell pwd)
 .PHONY: _venv
 _venv:
 	# ensuring venv
-	[ "${SKIP_VENV}" ] || [ "$(PYTHON)" = "$(PWD)/.venv/bin/python" ] || [ "$(PYTHON)" = "$(PWD)/.venv/Scripts/python" ]
+	[ "${SKIP_VENV}" ] || [ "$(PYTHON)" = "$(PWD)/.venv/bin/python" ]
 
 .PHONY: deps
 deps: _venv	## Install requirements & sub-module
@@ -42,46 +43,46 @@ deps: _venv	## Install requirements & sub-module
 
 REF_HEAD ?= origin/master
 CHANGED_FILES_PY ?= $(shell git diff $(REF_HEAD) --name-only --diff-filter=MACRU \*.py)
-CHANGED_FILES_PY_FLAG ?= $(shell if [ "$(CHANGED_FILES_PY)" ]; then echo 1; else echo; fi)
+# CHANGED_FILES_PY ?= cr setup.py chessdet/ tests/
 
 .PHONY: format
 format: _venv	## Format the code
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    isort ${CHANGED_FILES_PY}; \
-	fi
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    black ${CHANGED_FILES_PY}; \
-	fi
+ifneq ($(CHANGED_FILES_PY),)
+	isort ${CHANGED_FILES_PY}
+	black ${CHANGED_FILES_PY}
+else
+	@echo "No changed python files, skipping."
+endif
+
 
 .PHONY: lint
 lint: _venv	## Lint the code
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	# Check formatting: Python
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    isort --diff --check ${CHANGED_FILES_PY}; \
-	fi
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    black --check ${CHANGED_FILES_PY}; \
-	fi
+ifneq ($(CHANGED_FILES_PY),)
+	isort --diff --check ${CHANGED_FILES_PY}
+	black --check ${CHANGED_FILES_PY}
+else
+	@echo "No changed python files, skipping."
+endif
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	# Lint Python
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    pycodestyle ${CHANGED_FILES_PY}; \
-	fi
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    bandit -c .banditrc -q -r ${CHANGED_FILES_PY}; \
-	fi
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    flake8 --statistics --doctests ${CHANGED_FILES_PY}; \
-	fi
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    pylint ${CHANGED_FILES_PY}; \
-	fi
-	if [ "${CHANGED_FILES_PY_FLAG}" ]; then \
-	    mypy ${CHANGED_FILES_PY}; \
-	fi
+ifneq ($(CHANGED_FILES_PY),)
+	pycodestyle ${CHANGED_FILES_PY}
+	bandit -c .banditrc -q -r ${CHANGED_FILES_PY}
+	flake8 --statistics --doctests ${CHANGED_FILES_PY}
+	pylint ${CHANGED_FILES_PY}
+	mypy ${CHANGED_FILES_PY}
+else
+	@echo "No changed python files, skipping."
+endif
+
+.PHONY: lint-all
+lint-all:	## Lint all code (non-incremental)
+	CHANGED_FILES_PY="cr setup.py chessdet/ tests/" make lint
+
 
 .PHONY: test
 test: _venv	## Test the code
@@ -122,14 +123,16 @@ build:	## Bundle a source distribution
 # Rank
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+UNAME_S ?= $(shell uname -s)
+
 .PHONY: rank
 rank:	## Rank (copy for google sheet)
 	./cr fetch
-	if [ "$(shell uname -o)" = "Darwin" ]; then \
-		./cr rank --no-abbrev-titles -s -mg | pbcopy; \
-	else \
-		./cr rank --no-abbrev-titles -s -mg | xclip -sel clip; \
-	fi
+ifeq ($(UNAME_S),Darwin)
+	./cr rank --no-abbrev-titles -s -mg | pbcopy
+else
+	./cr rank --no-abbrev-titles -s -mg | xclip -sel clip
+endif
 
 
 
